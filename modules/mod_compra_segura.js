@@ -74,10 +74,10 @@
 
   PAINEL.registrarModulo({
     id: 'compra_segura',
-    nome: 'Extrator Compra Segura',
+    nome: 'Extrator Modo de entrada/Segurança',
     icone: '🛡️',
     cor: 'linear-gradient(90deg,#2ecc71,#27ae60)',
-    descricao: 'Classifica transações como Segura/Não Segura por NUMINC',
+    descricao: 'Classifica transações como Segura/Não Segura por ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_compra_segura_v1',
     intervaloMS: 200,

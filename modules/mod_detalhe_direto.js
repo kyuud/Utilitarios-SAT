@@ -84,10 +84,10 @@
 
   PAINEL.registrarModulo({
     id: 'detalhe_direto',
-    nome: 'SAT Detalhe Direto',
+    nome: 'Consulta Solução de Ocorrência',
     icone: '🔎',
-    cor: 'linear-gradient(90deg,#a855f7,#38bdf8)',
-    descricao: 'CODSOLINC + Modo Entrada/Segurança por NUMINC',
+    cor: 'linear-gradient(90deg,#f39c12,#e67e22)',
+    descricao: 'Código de solução + Modo Entrada/Segurança de ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_detalhe_direto_v2',
     intervaloMS: 200,

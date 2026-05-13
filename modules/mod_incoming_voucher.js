@@ -166,10 +166,10 @@
 
   PAINEL.registrarModulo({
     id: 'incoming_voucher',
-    nome: 'Incoming Voucher (0311→0884)',
-    icone: '🧾',
-    cor: 'linear-gradient(90deg,#e0a526,#f39c12)',
-    descricao: 'Extrai ARN Voucher + Valor Compra por ARN',
+    nome: 'Vinculação Voucher - Extrator',
+    icone: '🎟️',
+    cor: 'linear-gradient(90deg,#9b59b6,#8e44ad)',
+    descricao: 'Extrai ARN + Valor do voucher por ARN de transação vinculada',
     sistema: 'SAT',
     storageKey: '_sat_incoming_voucher_v1',
     intervaloMS: 500,

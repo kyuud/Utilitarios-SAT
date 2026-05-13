@@ -82,10 +82,10 @@
 
   PAINEL.registrarModulo({
     id: 'reportes_fraude',
-    nome: 'Reportes de Fraude (0181)',
+    nome: 'Consulta Reportes de Fraude',
     icone: '🚨',
     cor: 'linear-gradient(90deg,#e74c3c,#c0392b)',
-    descricao: 'Consulta reportes de fraude em lote por NUMEXP',
+    descricao: 'Consulta reportes de fraude em lote por ocorrência (ELO e VISA)',
     sistema: 'SAT',
     storageKey: '_consulta_reportes_v1',
     intervaloMS: 50,

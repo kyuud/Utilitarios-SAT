@@ -59,10 +59,10 @@
 
   PAINEL.registrarModulo({
     id: 'nucaso',
-    nome: 'Consulta NUCASO (0209)',
-    icone: '📋',
-    cor: 'linear-gradient(90deg,#e0a526,#e67e22)',
-    descricao: 'Verifica campo NUCASO por número de expediente',
+    nome: 'Extrator de número de caso de bandeira',
+    icone: '🏷️',
+    cor: 'linear-gradient(90deg,#f1c40f,#f39c12)',
+    descricao: 'Extrai o número do caso de bandeira por número de ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_nucaso_v1',
     intervaloMS: 100,

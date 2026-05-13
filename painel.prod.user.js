@@ -86,8 +86,8 @@
       }
       // Inicializar após todos os scripts carregarem
       if (window.__PAINEL_CORE__ &&
-        window.__PAINEL_CORE__.vrolBridge &&
-        window.__PAINEL_CORE__.vrolBridge.isVrolHost()) {
+          window.__PAINEL_CORE__.vrolBridge &&
+          window.__PAINEL_CORE__.vrolBridge.isVrolHost()) {
         window.__PAINEL_CORE__.vrolBridge.instalarServidor();
         console.log('[Painel] DEV MODE - Ponte VROL ativa.');
       } else if (window.__PAINEL_CORE__ && window.__PAINEL_CORE__.ui) {
@@ -100,7 +100,9 @@
 
   // ── Modo Produção: tudo está inline (injetado pelo build.js) ──
   // BUILD_INJECT_START
-\n  // ── core/utils.js ──\n  /**
+
+// ── core/utils.js ──
+/**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/utils.js
  *  Funções utilitárias compartilhadas por todos os módulos.
@@ -254,7 +256,10 @@
   };
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── core/network.js ──\n  /**
+
+
+// ── core/network.js ──
+/**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/network.js
  *  Camada de rede: POST para servlets SAT, gerenciamento de
@@ -473,7 +478,10 @@
   };
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── core/vrolBridge.js ──\n  /**
+
+
+// ── core/vrolBridge.js ──
+/**
  * PAINEL UNIFICADO - core/vrolBridge.js
  *
  * Ponte SAT <-> VROL via storage do Tampermonkey.
@@ -898,7 +906,10 @@
   };
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── core/persistence.js ──\n  /**
+
+
+// ── core/persistence.js ──
+/**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/persistence.js
  *  Persistência genérica via localStorage para retomada de
@@ -968,7 +979,7 @@
       var nProc = Object.keys(estado.processados).length;
       var confirmar = confirmFn || function (mensagem) { return confirm(mensagem); };
       if (nProc > 0 && confirmar(
-        'Progresso anterior encontrado: ' + nProc + '/' + lista.length + ' itens.\n  ' +
+        'Progresso anterior encontrado: ' + nProc + '/' + lista.length + ' itens.\n' +
         'Continuar de onde parou?'
       )) {
         return {
@@ -1000,7 +1011,10 @@
   };
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── core/dataIO.js ──\n  /**
+
+
+// ── core/dataIO.js ──
+/**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/dataIO.js
  *  Importação (XLSX/manual) e exportação (CSV/XLSX) de dados.
@@ -1136,7 +1150,7 @@
    */
   function carregarManualTexto(texto, parseRow) {
     if (!texto) return [];
-    return String(texto).split(/[\n  ;]+/)
+    return String(texto).split(/[\n;]+/)
       .map(function (v) { return v.trim(); })
       .filter(function (v) { return v !== ''; })
       .map(parseRow)
@@ -1155,7 +1169,7 @@
    */
   function escaparCSV(valor) {
     var v = (valor === null || valor === undefined) ? '' : String(valor);
-    if (/[;"\r\n  ]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+    if (/[;"\r\n]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
     return v;
   }
 
@@ -1167,7 +1181,7 @@
       });
       linhas.push(vals.join(';'));
     });
-    var conteudo = '\uFEFF' + linhas.join('\r\n  ');
+    var conteudo = '\uFEFF' + linhas.join('\r\n');
     var blob = new Blob([conteudo], { type: 'text/csv;charset=utf-8;' });
     _download(doc, blob, prefixo + '_' + (sufixo || PAINEL.utils.timestampSufixo()) + '.csv');
   }
@@ -1238,7 +1252,10 @@
   };
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── core/ui.js ──\n  /**
+
+
+// ── core/ui.js ──
+/**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/ui.js
  *  Motor de UI: popup, menu de módulos, tela de execução,
@@ -1311,7 +1328,7 @@
     '#tm{margin-top:3px;color:#555;font-size:10px;}',
     '#logarea{flex:1 1 auto;overflow-y:auto;padding:6px 12px 10px;border-top:1px solid #111;min-height:0;}',
     '.log-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.03);white-space:pre-wrap;word-break:break-all;font-size:11px;font-family:Consolas,monospace;line-height:1.4;}',
-  ].join('\n  ');
+  ].join('\n');
 
   // ══════════════════════════════════════════════════════════
   //  CRIAR POPUP
@@ -1590,7 +1607,7 @@
 
     function contarEntradasManual(texto) {
       if (!texto) return 0;
-      return String(texto).split(/[\n  ;]+/)
+      return String(texto).split(/[\n;]+/)
         .map(function (v) { return v.trim(); })
         .filter(function (v) { return v !== ''; })
         .length;
@@ -2018,7 +2035,10 @@
   window.painelAbrir = abrirPopup;
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_compra_segura.js ──\n  /**
+
+
+// ── modules/mod_compra_segura.js ──
+/**
  * MÓDULO: Extrator Compra Segura (ServletAjax)
  * Extrai MODO_ENTRADA, MODO_SEGURANÇA e CODSOLINC
  * usando pesquisaDeOcorrencias + getMessageIncoming.
@@ -2094,10 +2114,10 @@
 
   PAINEL.registrarModulo({
     id: 'compra_segura',
-    nome: 'Extrator Compra Segura',
+    nome: 'Extrator Modo de entrada/Segurança',
     icone: '🛡️',
     cor: 'linear-gradient(90deg,#2ecc71,#27ae60)',
-    descricao: 'Classifica transações como Segura/Não Segura por NUMINC',
+    descricao: 'Classifica transações como Segura/Não Segura por ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_compra_segura_v1',
     intervaloMS: 200,
@@ -2155,7 +2175,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_consulta_completa.js ──\n  /**
+
+
+// ── modules/mod_consulta_completa.js ──
+/**
  * MÓDULO: Consulta Completa de Expedientes (SAT Menu 0209)
  * Extrai TODOS os campos das páginas de busca e detalhe do SAT.
  * Pipeline: passo1(navegar) → passo2(pesquisar) → passo2b(incidências) → passo3(detalhe).
@@ -2289,7 +2312,7 @@
 
   PAINEL.registrarModulo({
     id: 'consulta_completa',
-    nome: 'Consulta Completa (0209)',
+    nome: 'Extrator de Informações de Ocorrências',
     icone: '📊',
     cor: 'linear-gradient(90deg,#3498db,#2ecc71)',
     descricao: 'Extrai TODOS os campos de busca + detalhe por NUMEXP',
@@ -2341,7 +2364,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_consulta_redes.js ──\n  /**
+
+
+// ── modules/mod_consulta_redes.js ──
+/**
  * ═══════════════════════════════════════════════════════════
  *  MÓDULO: Consulta Redes (SAT Menu 0311)
  *
@@ -2481,10 +2507,10 @@
   // ── Registrar módulo no painel ──
   PAINEL.registrarModulo({
     id: 'consulta_redes',
-    nome: 'Consulta Redes (0311)',
-    icone: '🔍',
-    cor: 'linear-gradient(90deg,#56cfe1,#2ecc71)',
-    descricao: 'Pesquisa em lote por ARN no Histórico de Redes',
+    nome: 'Consulta Histórico de Redes',
+    icone: '🌐',
+    cor: 'linear-gradient(90deg,#00b4d8,#0077b6)',
+    descricao: 'Extrator de informações do ARN no Histórico de Redes',
     sistema: 'SAT',
     storageKey: '_sat_redes_v1',
     intervaloMS: 300,
@@ -2494,7 +2520,7 @@
 
     inputConfig: {
       instrucao: 'XLSX: col A = ARN, col B = TIPFRAN (1=VISA, 2=MC, 7=ELO)',
-      promptManual: 'Cole os ARNs (um por linha).\n  Formato opcional: ARN,TIPFRAN\n  (Padrão TIPFRAN = 2 Mastercard)',
+      promptManual: 'Cole os ARNs (um por linha).\nFormato opcional: ARN,TIPFRAN\n(Padrão TIPFRAN = 2 Mastercard)',
       parseRow: function (row) {
         var arn = String(row[0] || '').trim();
         if (!arn) return null;
@@ -2561,7 +2587,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_detalhe_direto.js ──\n  /**
+
+
+// ── modules/mod_detalhe_direto.js ──
+/**
  * MÓDULO: SAT Detalhe Direto (ServletAjax)
  * Extrai CODSOLINC, INDSITEXP, MODO_ENTRADA, MODO_SEGURANÇA
  * usando pesquisaDeOcorrencias + getMessageIncoming.
@@ -2647,10 +2676,10 @@
 
   PAINEL.registrarModulo({
     id: 'detalhe_direto',
-    nome: 'SAT Detalhe Direto',
+    nome: 'Consulta Solução de Ocorrência',
     icone: '🔎',
-    cor: 'linear-gradient(90deg,#a855f7,#38bdf8)',
-    descricao: 'CODSOLINC + Modo Entrada/Segurança por NUMINC',
+    cor: 'linear-gradient(90deg,#f39c12,#e67e22)',
+    descricao: 'Código de solução + Modo Entrada/Segurança de ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_detalhe_direto_v2',
     intervaloMS: 200,
@@ -2706,7 +2735,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_incoming_voucher.js ──\n  /**
+
+
+// ── modules/mod_incoming_voucher.js ──
+/**
  * MÓDULO: Mensagem Incoming Voucher por ARN (SAT Menu 0311→0884)
  * Pipeline: buscarGnral → encontrarLinha001/SIM → detalhe → voucher → extrairDados.
  * Extrai Acquirer Ref Number e Valor Compra-Parcela.
@@ -2874,10 +2906,10 @@
 
   PAINEL.registrarModulo({
     id: 'incoming_voucher',
-    nome: 'Incoming Voucher (0311→0884)',
-    icone: '🧾',
-    cor: 'linear-gradient(90deg,#e0a526,#f39c12)',
-    descricao: 'Extrai ARN Voucher + Valor Compra por ARN',
+    nome: 'Vinculação Voucher - Extrator',
+    icone: '🎟️',
+    cor: 'linear-gradient(90deg,#9b59b6,#8e44ad)',
+    descricao: 'Extrai ARN + Valor do voucher por ARN de transação vinculada',
     sistema: 'SAT',
     storageKey: '_sat_incoming_voucher_v1',
     intervaloMS: 500,
@@ -2885,7 +2917,7 @@
     exportFormat: 'csv',
     inputConfig: {
       instrucao: 'XLSX: col A = ARN, col B = TIPFRAN (default 2)',
-      promptManual: 'Cole os ARNs (um por linha).\n  Formato: ARN,TIPFRAN',
+      promptManual: 'Cole os ARNs (um por linha).\nFormato: ARN,TIPFRAN',
       parseRow: function (row) {
         var arn = String(row[0] || '').trim();
         if (!arn) return null;
@@ -2943,7 +2975,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_nucaso.js ──\n  /**
+
+
+// ── modules/mod_nucaso.js ──
+/**
  * MÓDULO: Consulta NUCASO (SAT Menu 0209)
  * Verifica se NUCASO está preenchido por número de expediente.
  * 2 requisições por item (sem abrir detalhe).
@@ -3004,10 +3039,10 @@
 
   PAINEL.registrarModulo({
     id: 'nucaso',
-    nome: 'Consulta NUCASO (0209)',
-    icone: '📋',
-    cor: 'linear-gradient(90deg,#e0a526,#e67e22)',
-    descricao: 'Verifica campo NUCASO por número de expediente',
+    nome: 'Extrator de número de caso de bandeira',
+    icone: '🏷️',
+    cor: 'linear-gradient(90deg,#f1c40f,#f39c12)',
+    descricao: 'Extrai o número do caso de bandeira por número de ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_nucaso_v1',
     intervaloMS: 100,
@@ -3040,7 +3075,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_reportes_fraude.js ──\n  /**
+
+
+// ── modules/mod_reportes_fraude.js ──
+/**
  * MÓDULO: Consulta Reportes de Fraude (SAT Menu 0181)
  * Consulta em lote de reportes de fraude por NUMEXP + TIPFRAN.
  * Usa lotes de 120 itens com pausa entre lotes.
@@ -3124,10 +3162,10 @@
 
   PAINEL.registrarModulo({
     id: 'reportes_fraude',
-    nome: 'Reportes de Fraude (0181)',
+    nome: 'Consulta Reportes de Fraude',
     icone: '🚨',
     cor: 'linear-gradient(90deg,#e74c3c,#c0392b)',
-    descricao: 'Consulta reportes de fraude em lote por NUMEXP',
+    descricao: 'Consulta reportes de fraude em lote por ocorrência (ELO e VISA)',
     sistema: 'SAT',
     storageKey: '_consulta_reportes_v1',
     intervaloMS: 50,
@@ -3137,7 +3175,7 @@
     exportFormat: 'csv',
     inputConfig: {
       instrucao: 'XLSX: col A = NUMEXP, col B = TIPFRAN (default 1)',
-      promptManual: 'Cole os expedientes (um por linha).\n  Formato: NUMEXP,TIPFRAN',
+      promptManual: 'Cole os expedientes (um por linha).\nFormato: NUMEXP,TIPFRAN',
       parseRow: function (row) {
         var numexp = String(row[0] || '').trim();
         if (!numexp || !/^\d+$/.test(numexp)) return null;
@@ -3193,7 +3231,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_sat_vrol.js ──\n  /**
+
+
+// ── modules/mod_sat_vrol.js ──
+/**
  * MÓDULO: SAT + VROL Consulta (SAT 0209 + ws-vcr JSON + VROL API)
  * Pipeline: SAT(passo1→passo2→passo3→NUMREF+PAN) → ws-vcr(getTransacao) → VROL(chargebacks+caseCheck).
  * A consulta principal de transação usa o endpoint JSON /ws-vcr (same-origin, sem ponte).
@@ -3574,7 +3615,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_siach_ocorrencias.js ──\n  /**
+
+
+// ── modules/mod_siach_ocorrencias.js ──
+/**
  * MÓDULO: Extrator de Ocorrências SIACH (REST API)
  * Consulta protocolo → lista ocorrências EM_ANDAMENTO → detalhe/transações.
  * Saída: uma linha por transação (ou uma por ocorrência sem transação).
@@ -3768,7 +3812,10 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n\n  // ── modules/mod_vinculacao_voucher.js ──\n  /**
+
+
+// ── modules/mod_vinculacao_voucher.js ──
+/**
  * MÓDULO: Consulta Vinculação Voucher (SAT Menu 0209)
  * Retorna VINCVOUCHER (SIM/NAO) por número de expediente.
  * 2 requisições por item (sem abrir detalhe).
@@ -3829,10 +3876,10 @@
 
   PAINEL.registrarModulo({
     id: 'vinculacao_voucher',
-    nome: 'Vinculação Voucher (0209)',
+    nome: 'Pesquisa de Vinculação Voucher',
     icone: '🔗',
-    cor: 'linear-gradient(90deg,#9b59b6,#8e44ad)',
-    descricao: 'Retorna VINCVOUCHER por número de expediente',
+    cor: 'linear-gradient(90deg,#3498db,#2980b9)',
+    descricao: 'Verifica se a ocorrência possui voucher vinculado',
     sistema: 'SAT',
     storageKey: '_painel_vincvoucher_v1',
     intervaloMS: 100,
@@ -3864,7 +3911,8 @@
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
-\n
+
+
 // BUILD_INJECT_END
 
   // ── Inicializar ──

@@ -86,8 +86,8 @@
       }
       // Inicializar após todos os scripts carregarem
       if (window.__PAINEL_CORE__ &&
-        window.__PAINEL_CORE__.vrolBridge &&
-        window.__PAINEL_CORE__.vrolBridge.isVrolHost()) {
+          window.__PAINEL_CORE__.vrolBridge &&
+          window.__PAINEL_CORE__.vrolBridge.isVrolHost()) {
         window.__PAINEL_CORE__.vrolBridge.instalarServidor();
         console.log('[Painel] DEV MODE - Ponte VROL ativa.');
       } else if (window.__PAINEL_CORE__ && window.__PAINEL_CORE__.ui) {

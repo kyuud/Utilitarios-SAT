@@ -1,6 +1,6 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-13T12:36:33.397184
+ * Data: 2026-05-13T16:19:05.684504
  * Arquivos: 16
  */
 (function() {
@@ -2042,10 +2042,10 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'compra_segura',
-    nome: 'Extrator Compra Segura',
+    nome: 'Extrator Modo de entrada/Segurança',
     icone: '🛡️',
     cor: 'linear-gradient(90deg,#2ecc71,#27ae60)',
-    descricao: 'Classifica transações como Segura/Não Segura por NUMINC',
+    descricao: 'Classifica transações como Segura/Não Segura por ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_compra_segura_v1',
     intervaloMS: 200,
@@ -2243,7 +2243,7 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'consulta_completa',
-    nome: 'Consulta Completa (0209)',
+    nome: 'Extrator de Informações de Ocorrências',
     icone: '📊',
     cor: 'linear-gradient(90deg,#3498db,#2ecc71)',
     descricao: 'Extrai TODOS os campos de busca + detalhe por NUMEXP',
@@ -2441,10 +2441,10 @@ window.__PAINEL_INIT__ = true;
   // ── Registrar módulo no painel ──
   PAINEL.registrarModulo({
     id: 'consulta_redes',
-    nome: 'Consulta Redes (0311)',
-    icone: '🔍',
-    cor: 'linear-gradient(90deg,#56cfe1,#2ecc71)',
-    descricao: 'Pesquisa em lote por ARN no Histórico de Redes',
+    nome: 'Consulta Histórico de Redes',
+    icone: '🌐',
+    cor: 'linear-gradient(90deg,#00b4d8,#0077b6)',
+    descricao: 'Extrator de informações do ARN no Histórico de Redes',
     sistema: 'SAT',
     storageKey: '_sat_redes_v1',
     intervaloMS: 300,
@@ -2613,10 +2613,10 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'detalhe_direto',
-    nome: 'SAT Detalhe Direto',
+    nome: 'Consulta Solução de Ocorrência',
     icone: '🔎',
-    cor: 'linear-gradient(90deg,#a855f7,#38bdf8)',
-    descricao: 'CODSOLINC + Modo Entrada/Segurança por NUMINC',
+    cor: 'linear-gradient(90deg,#f39c12,#e67e22)',
+    descricao: 'Código de solução + Modo Entrada/Segurança de ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_detalhe_direto_v2',
     intervaloMS: 200,
@@ -2846,10 +2846,10 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'incoming_voucher',
-    nome: 'Incoming Voucher (0311→0884)',
-    icone: '🧾',
-    cor: 'linear-gradient(90deg,#e0a526,#f39c12)',
-    descricao: 'Extrai ARN Voucher + Valor Compra por ARN',
+    nome: 'Vinculação Voucher - Extrator',
+    icone: '🎟️',
+    cor: 'linear-gradient(90deg,#9b59b6,#8e44ad)',
+    descricao: 'Extrai ARN + Valor do voucher por ARN de transação vinculada',
     sistema: 'SAT',
     storageKey: '_sat_incoming_voucher_v1',
     intervaloMS: 500,
@@ -2982,10 +2982,10 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'nucaso',
-    nome: 'Consulta NUCASO (0209)',
-    icone: '📋',
-    cor: 'linear-gradient(90deg,#e0a526,#e67e22)',
-    descricao: 'Verifica campo NUCASO por número de expediente',
+    nome: 'Extrator de número de caso de bandeira',
+    icone: '🏷️',
+    cor: 'linear-gradient(90deg,#f1c40f,#f39c12)',
+    descricao: 'Extrai o número do caso de bandeira por número de ocorrência',
     sistema: 'SAT',
     storageKey: '_sat_nucaso_v1',
     intervaloMS: 100,
@@ -3108,10 +3108,10 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'reportes_fraude',
-    nome: 'Reportes de Fraude (0181)',
+    nome: 'Consulta Reportes de Fraude',
     icone: '🚨',
     cor: 'linear-gradient(90deg,#e74c3c,#c0392b)',
-    descricao: 'Consulta reportes de fraude em lote por NUMEXP',
+    descricao: 'Consulta reportes de fraude em lote por ocorrência (ELO e VISA)',
     sistema: 'SAT',
     storageKey: '_consulta_reportes_v1',
     intervaloMS: 50,
@@ -3831,10 +3831,10 @@ window.__PAINEL_INIT__ = true;
 
   PAINEL.registrarModulo({
     id: 'vinculacao_voucher',
-    nome: 'Vinculação Voucher (0209)',
+    nome: 'Pesquisa de Vinculação Voucher',
     icone: '🔗',
-    cor: 'linear-gradient(90deg,#9b59b6,#8e44ad)',
-    descricao: 'Retorna VINCVOUCHER por número de expediente',
+    cor: 'linear-gradient(90deg,#3498db,#2980b9)',
+    descricao: 'Verifica se a ocorrência possui voucher vinculado',
     sistema: 'SAT',
     storageKey: '_painel_vincvoucher_v1',
     intervaloMS: 100,

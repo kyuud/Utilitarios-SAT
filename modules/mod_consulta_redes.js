@@ -138,10 +138,10 @@
   // ── Registrar módulo no painel ──
   PAINEL.registrarModulo({
     id: 'consulta_redes',
-    nome: 'Consulta Redes (0311)',
-    icone: '🔍',
-    cor: 'linear-gradient(90deg,#56cfe1,#2ecc71)',
-    descricao: 'Pesquisa em lote por ARN no Histórico de Redes',
+    nome: 'Consulta Histórico de Redes',
+    icone: '🌐',
+    cor: 'linear-gradient(90deg,#00b4d8,#0077b6)',
+    descricao: 'Extrator de informações do ARN no Histórico de Redes',
     sistema: 'SAT',
     storageKey: '_sat_redes_v1',
     intervaloMS: 300,

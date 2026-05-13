@@ -59,10 +59,10 @@
 
   PAINEL.registrarModulo({
     id: 'vinculacao_voucher',
-    nome: 'Vinculação Voucher (0209)',
+    nome: 'Pesquisa de Vinculação Voucher',
     icone: '🔗',
-    cor: 'linear-gradient(90deg,#9b59b6,#8e44ad)',
-    descricao: 'Retorna VINCVOUCHER por número de expediente',
+    cor: 'linear-gradient(90deg,#3498db,#2980b9)',
+    descricao: 'Verifica se a ocorrência possui voucher vinculado',
     sistema: 'SAT',
     storageKey: '_painel_vincvoucher_v1',
     intervaloMS: 100,

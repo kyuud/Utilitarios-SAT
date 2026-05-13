@@ -132,7 +132,7 @@
 
   PAINEL.registrarModulo({
     id: 'consulta_completa',
-    nome: 'Consulta Completa (0209)',
+    nome: 'Extrator de Informações de Ocorrências',
     icone: '📊',
     cor: 'linear-gradient(90deg,#3498db,#2ecc71)',
     descricao: 'Extrai TODOS os campos de busca + detalhe por NUMEXP',
