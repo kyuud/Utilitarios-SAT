@@ -1,6 +1,6 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-12T17:49:21.829653
+ * Data: 2026-05-13T12:36:33.397184
  * Arquivos: 16
  */
 (function() {

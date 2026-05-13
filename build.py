@@ -115,9 +115,13 @@ if os.path.isfile(user_script_path):
                 continue
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            inline_parts.append(f'\n// ── {file} ──\n')
-            inline_parts.append(content)
-            inline_parts.append('\n')
+            
+            # Indentar o conteúdo para alinhar com o (function() { do painel.user.js
+            indented_content = '\\n'.join('  ' + line if line.strip() else line for line in content.split('\\n'))
+            
+            inline_parts.append(f'\\n  // ── {file} ──\\n')
+            inline_parts.append(indented_content)
+            inline_parts.append('\\n')
 
         inline_content = ''.join(inline_parts)
         before = user_script[:start_idx]
