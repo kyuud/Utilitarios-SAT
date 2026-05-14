@@ -14,6 +14,20 @@
     'Estabelecimento', 'NUMREF', 'CONTCUR',
   ];
 
+  function limparCampo(valor) {
+    return String(valor == null ? '' : valor).trim().replace(/^["']+|["']+$/g, '');
+  }
+
+  function montarItem(numexpValor, tipfranValor) {
+    var numexp = limparCampo(numexpValor);
+    if (!numexp || !/^\d+$/.test(numexp)) return null;
+
+    var tipfran = limparCampo(tipfranValor);
+    if (!tipfran || !/^\d+$/.test(tipfran)) tipfran = '1';
+
+    return { numexp: numexp, tipfran: tipfran };
+  }
+
   function getDataHoje() {
     try { if (typeof sFechaSistema !== 'undefined' && sFechaSistema) return sFechaSistema; } catch (e) { }
     var d = new Date();
@@ -96,20 +110,15 @@
     inputConfig: {
       instrucao: 'XLSX: col A = NUMEXP, col B = TIPFRAN (default 1)',
       promptManual: 'Cole os expedientes (um por linha).\nFormato: NUMEXP,TIPFRAN',
+      manualLineSplit: /\r?\n/,
       parseRow: function (row) {
-        var numexp = String(row[0] || '').trim();
-        if (!numexp || !/^\d+$/.test(numexp)) return null;
-        var tipfran = '1';
-        if (row[1] != null) { var tf = String(row[1]).trim(); if (/^\d+$/.test(tf)) tipfran = tf; }
-        return { numexp: numexp, tipfran: tipfran };
+        return montarItem(row[0], row[1]);
       },
       parseManual: function (line) {
-        var parts = line.split(/[,;\t]/);
-        var numexp = parts[0].trim();
-        if (!numexp || !/^\d+$/.test(numexp)) return null;
-        return { numexp: numexp, tipfran: (parts[1] || '1').trim() };
+        var parts = String(line || '').split(/[,;\t_]/);
+        return montarItem(parts[0], parts[1]);
       },
-      toStr: function (item) { return item.numexp + '_' + item.tipfran; },
+      toStr: function (item) { return item.numexp + ',' + item.tipfran; },
     },
     keepaliveConfig: {
       url: BASE + '/ServletAjax',

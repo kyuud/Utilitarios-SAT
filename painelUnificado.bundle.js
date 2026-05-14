@@ -1,6 +1,6 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-13T16:21:10.990374
+ * Data: 2026-05-14T09:41:28.555694
  * Arquivos: 16
  */
 (function() {
@@ -1056,6 +1056,8 @@ window.__PAINEL_INIT__ = true;
    *
    * @param {string} promptText - Texto do prompt.
    * @param {Function} parseRow - Recebe string de uma linha, retorna item ou null.
+   * @param {Object} [options] - Opções de parsing manual.
+   * @param {RegExp|Function} [options.lineSplit] - Separador das linhas/itens.
    * @returns {Array} Lista de itens.
    */
   function carregarManual(promptText, parseRow) {
@@ -1070,9 +1072,14 @@ window.__PAINEL_INIT__ = true;
    * @param {Function} parseRow - Recebe string de uma linha, retorna item ou null.
    * @returns {Array} Lista de itens.
    */
-  function carregarManualTexto(texto, parseRow) {
+  function carregarManualTexto(texto, parseRow, options) {
     if (!texto) return [];
-    return String(texto).split(/[\n;]+/)
+    options = options || {};
+    var lineSplit = options.lineSplit || /[\n;]+/;
+    var linhas = (typeof lineSplit === 'function')
+      ? lineSplit(String(texto))
+      : String(texto).split(lineSplit);
+    return linhas
       .map(function (v) { return v.trim(); })
       .filter(function (v) { return v !== ''; })
       .map(parseRow)
@@ -1530,9 +1537,18 @@ window.__PAINEL_INIT__ = true;
     var manualCount = null;
     var btnManualRun = null;
 
+    var manualLineSplit = mod.inputConfig.manualLineSplit || /[\n;]+/;
+
+    function dividirEntradasManual(texto) {
+      if (!texto) return [];
+      return (typeof manualLineSplit === 'function')
+        ? manualLineSplit(String(texto))
+        : String(texto).split(manualLineSplit);
+    }
+
     function contarEntradasManual(texto) {
       if (!texto) return 0;
-      return String(texto).split(/[\n;]+/)
+      return dividirEntradasManual(texto)
         .map(function (v) { return v.trim(); })
         .filter(function (v) { return v !== ''; })
         .length;
@@ -1825,7 +1841,9 @@ window.__PAINEL_INIT__ = true;
       btnManualRun.addEventListener('click', async function () {
         var lista;
         try {
-          lista = PAINEL.dataIO.carregarManualTexto(manualInput.value, parseManual);
+          lista = PAINEL.dataIO.carregarManualTexto(manualInput.value, parseManual, {
+            lineSplit: manualLineSplit,
+          });
         } catch (e) {
           addLog('ERRO no input manual: ' + e.message);
           return;
@@ -3040,6 +3058,20 @@ window.__PAINEL_INIT__ = true;
     'Estabelecimento', 'NUMREF', 'CONTCUR',
   ];
 
+  function limparCampo(valor) {
+    return String(valor == null ? '' : valor).trim().replace(/^["']+|["']+$/g, '');
+  }
+
+  function montarItem(numexpValor, tipfranValor) {
+    var numexp = limparCampo(numexpValor);
+    if (!numexp || !/^\d+$/.test(numexp)) return null;
+
+    var tipfran = limparCampo(tipfranValor);
+    if (!tipfran || !/^\d+$/.test(tipfran)) tipfran = '1';
+
+    return { numexp: numexp, tipfran: tipfran };
+  }
+
   function getDataHoje() {
     try { if (typeof sFechaSistema !== 'undefined' && sFechaSistema) return sFechaSistema; } catch (e) { }
     var d = new Date();
@@ -3122,20 +3154,15 @@ window.__PAINEL_INIT__ = true;
     inputConfig: {
       instrucao: 'XLSX: col A = NUMEXP, col B = TIPFRAN (default 1)',
       promptManual: 'Cole os expedientes (um por linha).\nFormato: NUMEXP,TIPFRAN',
+      manualLineSplit: /\r?\n/,
       parseRow: function (row) {
-        var numexp = String(row[0] || '').trim();
-        if (!numexp || !/^\d+$/.test(numexp)) return null;
-        var tipfran = '1';
-        if (row[1] != null) { var tf = String(row[1]).trim(); if (/^\d+$/.test(tf)) tipfran = tf; }
-        return { numexp: numexp, tipfran: tipfran };
+        return montarItem(row[0], row[1]);
       },
       parseManual: function (line) {
-        var parts = line.split(/[,;\t]/);
-        var numexp = parts[0].trim();
-        if (!numexp || !/^\d+$/.test(numexp)) return null;
-        return { numexp: numexp, tipfran: (parts[1] || '1').trim() };
+        var parts = String(line || '').split(/[,;\t_]/);
+        return montarItem(parts[0], parts[1]);
       },
-      toStr: function (item) { return item.numexp + '_' + item.tipfran; },
+      toStr: function (item) { return item.numexp + ',' + item.tipfran; },
     },
     keepaliveConfig: {
       url: BASE + '/ServletAjax',

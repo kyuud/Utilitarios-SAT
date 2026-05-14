@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Painel Automações CEF
 // @namespace    stefanini/automacoes
-// @version      1.0.4
+// @version      1.0.5
 // @updateURL    https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
 // @downloadURL  https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
 // @description  Painel de controle unificado para automações SAT/SIACH/VROL

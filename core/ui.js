@@ -348,9 +348,18 @@
     var manualCount = null;
     var btnManualRun = null;
 
+    var manualLineSplit = mod.inputConfig.manualLineSplit || /[\n;]+/;
+
+    function dividirEntradasManual(texto) {
+      if (!texto) return [];
+      return (typeof manualLineSplit === 'function')
+        ? manualLineSplit(String(texto))
+        : String(texto).split(manualLineSplit);
+    }
+
     function contarEntradasManual(texto) {
       if (!texto) return 0;
-      return String(texto).split(/[\n;]+/)
+      return dividirEntradasManual(texto)
         .map(function (v) { return v.trim(); })
         .filter(function (v) { return v !== ''; })
         .length;
@@ -643,7 +652,9 @@
       btnManualRun.addEventListener('click', async function () {
         var lista;
         try {
-          lista = PAINEL.dataIO.carregarManualTexto(manualInput.value, parseManual);
+          lista = PAINEL.dataIO.carregarManualTexto(manualInput.value, parseManual, {
+            lineSplit: manualLineSplit,
+          });
         } catch (e) {
           addLog('ERRO no input manual: ' + e.message);
           return;

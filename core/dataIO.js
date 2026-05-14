@@ -118,6 +118,8 @@
    *
    * @param {string} promptText - Texto do prompt.
    * @param {Function} parseRow - Recebe string de uma linha, retorna item ou null.
+   * @param {Object} [options] - Opções de parsing manual.
+   * @param {RegExp|Function} [options.lineSplit] - Separador das linhas/itens.
    * @returns {Array} Lista de itens.
    */
   function carregarManual(promptText, parseRow) {
@@ -132,9 +134,14 @@
    * @param {Function} parseRow - Recebe string de uma linha, retorna item ou null.
    * @returns {Array} Lista de itens.
    */
-  function carregarManualTexto(texto, parseRow) {
+  function carregarManualTexto(texto, parseRow, options) {
     if (!texto) return [];
-    return String(texto).split(/[\n;]+/)
+    options = options || {};
+    var lineSplit = options.lineSplit || /[\n;]+/;
+    var linhas = (typeof lineSplit === 'function')
+      ? lineSplit(String(texto))
+      : String(texto).split(lineSplit);
+    return linhas
       .map(function (v) { return v.trim(); })
       .filter(function (v) { return v !== ''; })
       .map(parseRow)
