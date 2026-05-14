@@ -1,13 +1,13 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-14T09:51:46.303059
+ * Data: 2026-05-14T10:31:57.071745
  * Arquivos: 16
  */
 (function() {
 "use strict";
 if (window.__PAINEL_INIT__) { console.warn("[Painel] Já inicializado."); return; }
 window.__PAINEL_INIT__ = true;
-window.__PAINEL_VERSION__ = "1.0.7";
+window.__PAINEL_VERSION__ = "1.0.8";
 
 
 // ════════════════════════════════════════════════════════════
@@ -3062,7 +3062,7 @@ window.__PAINEL_VERSION__ = "1.0.7";
 (function (PAINEL) {
   'use strict';
 
-  var BASE = '/sat/servlet';
+  var BASE = 'https://cartoes.extracaixa/sat/servlet';
 
   var CSV_COLS = [
     'DataHora', 'NumeroExpediente', 'TIPFRAN', 'STATUS',
@@ -3084,27 +3084,53 @@ window.__PAINEL_VERSION__ = "1.0.7";
     return { numexp: numexp, tipfran: tipfran };
   }
 
+  function getPageValue(nome) {
+    try {
+      if (typeof unsafeWindow !== 'undefined' && unsafeWindow[nome]) return unsafeWindow[nome];
+    } catch (e) { }
+    try {
+      if (window[nome]) return window[nome];
+    } catch (e2) { }
+    return '';
+  }
+
+  function getSessionIdReportes(network) {
+    var idSession = getPageValue('IdSession');
+    if (idSession) return idSession;
+    return network.getSessionId();
+  }
+
   function getDataHoje() {
+    var dataSistema = getPageValue('sFechaSistema');
+    if (dataSistema) return dataSistema;
     try { if (typeof sFechaSistema !== 'undefined' && sFechaSistema) return sFechaSistema; } catch (e) { }
     var d = new Date();
     return String(d.getDate()).padStart(2, '0') + '-' +
       String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
   }
 
+  async function postReportes(endpoint, params, network, checkSessao) {
+    var text = await network.post(BASE + '/' + endpoint, params, { credentials: 'include' });
+    if (checkSessao && text.indexOf('IdSession') === -1 && text.length < 6000) {
+      throw new Error('SESSAO_EXPIRADA');
+    }
+    return text;
+  }
+
   async function buscarRegistros(NUMEXPAUX, tipfran, network, utils) {
-    var sessionId = network.getSessionId();
+    var sessionId = getSessionIdReportes(network);
     var sIdWindow = sessionId + 'Interface';
     var dataHoje = getDataHoje();
 
     // Pre-request AJAX
-    await network.post(BASE + '/ServletAjax', {
+    await postReportes('ServletAjax', {
       REQUEST_TYPE: 'AJAX', Peticion: 'VALIDATRANSMTO',
       EventoEjecutar: 'deleteAndGoesToRecordConsHistoricoFranquiciasII',
       OperacionSolicitada: 'BUSCAR',
-    });
+    }, network);
 
     // Main search request
-    var htmlBusca = await network.post(BASE + '/ServletDirector', {
+    var htmlBusca = await postReportes('ServletDirector', {
       TKCSRF: '', IPROTOCOLO: '', NUMREFD: '', PAND: '',
       DESFRAUDE: '', CONTCUR: '', CODSUBF: '', INDPAG: '',
       DESCLAMONLIQ: '', DESINDNORC: '', VALIDAR: '',
@@ -3120,6 +3146,7 @@ window.__PAINEL_VERSION__ = "1.0.7";
       TIDDET: '', SECOPEORI: '', CODAUT: '', NUMREF: '',
       FECOPERD: '', FECCONTA: '', NOMCOM: '', INDNORCOR: '',
       TIPOFAC: '', DESTIPOFAC: '', NUMEXP: '', CLAMONLIQ: '', IMPLIQ: '',
+      Cache_mantMantenimiento: '', CacheMtoTxt: '', CacheMtoNUEVOEDITARTxt: '',
       nombreJSP: 'consHistoricoFranquiciasII',
       PRIMERA_CARGA_consHistoricoFranquiciasII: '',
       operacionestado: '', operacionCRITICA: 'BUSCAR', condes: '',
@@ -3135,7 +3162,7 @@ window.__PAINEL_VERSION__ = "1.0.7";
       sNombreEvento: 'viewConsHistoricoFranquiciasII',
       sIdWindow: sIdWindow, sIdWindowPadre: 'FrameProducto',
       consHistoricoFranquiciasII: 'true',
-    });
+    }, network, true);
 
     // Parse results
     var registrosVistos = {};
@@ -3179,6 +3206,7 @@ window.__PAINEL_VERSION__ = "1.0.7";
     keepaliveConfig: {
       url: BASE + '/ServletAjax',
       body: 'REQUEST_TYPE=AJAX&Peticion=VALIDATRANSMTO&EventoEjecutar=deleteAndGoesToRecordConsHistoricoFranquiciasII&OperacionSolicitada=BUSCAR',
+      credentials: 'include',
     },
     processarUm: async function (item, core) {
       var regs = await buscarRegistros(item.numexp, item.tipfran, core.network, core.utils);
@@ -3198,12 +3226,12 @@ window.__PAINEL_VERSION__ = "1.0.7";
           NumeroExpediente: item.numexp,
           TIPFRAN: item.tipfran,
           STATUS: 'ENCONTRADO',
-          PAN: a[0] || '',
-          DESFRAUDE: a[3] || '',
-          DESSITUAC: a[4] || '',
-          DESINDSIT: a[5] || '',
-          Estabelecimento: a[11] || '',
-          NUMREF: a[12] || '',
+          PAN: a[2] || '',
+          DESFRAUDE: a[4] || '',
+          DESSITUAC: a[6] || '',
+          DESINDSIT: a[7] || '',
+          Estabelecimento: a[24] || '',
+          NUMREF: a[3] || '',
           CONTCUR: a[20] || '',
         };
       });

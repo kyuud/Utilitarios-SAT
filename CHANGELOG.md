@@ -1,5 +1,17 @@
 # Changelog — Painel Unificado de Automações
 
+## v1.0.8 — 2026-05-14
+
+### Correções Aplicadas
+- Alinha `mod_reportes_fraude.js` ao script legado `consultaReportesFraude.js` nas chamadas SAT.
+- Usa `IdSession` da página para montar `sIdWindow`, com fallback para `JSESSIONID`.
+- Declara `unsafeWindow` no metadata para acesso consistente às variáveis da página SAT.
+- Reinclui campos `Cache_*` esperados pelo POST de `ServletDirector`.
+- Ajusta as credenciais das chamadas e do keepalive para `include`.
+- Corrige o mapeamento dos campos retornados por `Consulta(...)` no CSV.
+
+---
+
 ## v1.0.7 — 2026-05-14
 
 ### Painel
