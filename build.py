@@ -15,12 +15,27 @@
 import os
 import sys
 import io
+import json
+import re
 from datetime import datetime
 
 # Fix console encoding on Windows
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+def ler_versao_userscript():
+    user_script_path = os.path.join(ROOT, 'painel.user.js')
+    if not os.path.isfile(user_script_path):
+        return 'dev'
+    with open(user_script_path, 'r', encoding='utf-8') as f:
+        user_script = f.read()
+    match = re.search(r'^//\s*@version\s+(.+?)\s*$', user_script, re.MULTILINE)
+    return match.group(1).strip() if match else 'dev'
+
+
+VERSION = ler_versao_userscript()
 
 # Ordem de carregamento dos arquivos core (dependências primeiro)
 CORE_FILES = [
@@ -56,6 +71,7 @@ bundle_parts.append(f"""/**
 "use strict";
 if (window.__PAINEL_INIT__) {{ console.warn("[Painel] Já inicializado."); return; }}
 window.__PAINEL_INIT__ = true;
+window.__PAINEL_VERSION__ = {json.dumps(VERSION)};
 """)
 
 for file in all_files:

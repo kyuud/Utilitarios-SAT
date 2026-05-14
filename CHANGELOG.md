@@ -1,5 +1,13 @@
 # Changelog — Painel Unificado de Automações
 
+## v1.0.7 — 2026-05-14
+
+### Painel
+- Exibe a versão atual do userscript no cabeçalho do painel.
+- Usa a versão informada pelo Tampermonkey quando disponível, com fallback interno para modo dev/manual.
+
+---
+
 ## v1.0.6 — 2026-05-14
 
 ### Metadados

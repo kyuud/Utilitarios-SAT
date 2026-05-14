@@ -24,6 +24,15 @@
     _modulos.push(mod);
   }
 
+  function getVersaoPainel() {
+    try {
+      if (typeof GM_info !== 'undefined' && GM_info.script && GM_info.script.version) {
+        return GM_info.script.version;
+      }
+    } catch (e) { }
+    return window.__PAINEL_VERSION__ || 'dev';
+  }
+
   // ══════════════════════════════════════════════════════════
   //  CSS DO PAINEL
   // ══════════════════════════════════════════════════════════
@@ -106,7 +115,7 @@
       '<div id="hdr">' +
         '<div>' +
           '<div class="title">⚡ Painel de Automações</div>' +
-          '<div class="subtitle">SAT • SIACH • VROL</div>' +
+          '<div class="subtitle">SAT • SIACH • VROL • v<span id="painelVersion"></span></div>' +
         '</div>' +
         '<div id="hdr-btns">' +
           '<button class="btn btn-sm" id="btnVoltar" style="background:#334;color:#aaa;display:none;">← Menu</button>' +
@@ -133,6 +142,8 @@
     );
     _pw.document.close();
     _doc = _pw.document;
+    var versionEl = _doc.getElementById('painelVersion');
+    if (versionEl) versionEl.textContent = getVersaoPainel();
 
     // Cleanup on close
     _pw.addEventListener('beforeunload', function () {

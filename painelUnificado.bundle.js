@@ -1,12 +1,13 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-14T09:43:38.716488
+ * Data: 2026-05-14T09:51:46.303059
  * Arquivos: 16
  */
 (function() {
 "use strict";
 if (window.__PAINEL_INIT__) { console.warn("[Painel] Já inicializado."); return; }
 window.__PAINEL_INIT__ = true;
+window.__PAINEL_VERSION__ = "1.0.7";
 
 
 // ════════════════════════════════════════════════════════════
@@ -1213,6 +1214,15 @@ window.__PAINEL_INIT__ = true;
     _modulos.push(mod);
   }
 
+  function getVersaoPainel() {
+    try {
+      if (typeof GM_info !== 'undefined' && GM_info.script && GM_info.script.version) {
+        return GM_info.script.version;
+      }
+    } catch (e) { }
+    return window.__PAINEL_VERSION__ || 'dev';
+  }
+
   // ══════════════════════════════════════════════════════════
   //  CSS DO PAINEL
   // ══════════════════════════════════════════════════════════
@@ -1295,7 +1305,7 @@ window.__PAINEL_INIT__ = true;
       '<div id="hdr">' +
         '<div>' +
           '<div class="title">⚡ Painel de Automações</div>' +
-          '<div class="subtitle">SAT • SIACH • VROL</div>' +
+          '<div class="subtitle">SAT • SIACH • VROL • v<span id="painelVersion"></span></div>' +
         '</div>' +
         '<div id="hdr-btns">' +
           '<button class="btn btn-sm" id="btnVoltar" style="background:#334;color:#aaa;display:none;">← Menu</button>' +
@@ -1322,6 +1332,8 @@ window.__PAINEL_INIT__ = true;
     );
     _pw.document.close();
     _doc = _pw.document;
+    var versionEl = _doc.getElementById('painelVersion');
+    if (versionEl) versionEl.textContent = getVersaoPainel();
 
     // Cleanup on close
     _pw.addEventListener('beforeunload', function () {
