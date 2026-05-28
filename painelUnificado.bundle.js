@@ -1,13 +1,13 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-28T13:46:22.138049
+ * Data: 2026-05-28T13:49:51.335698
  * Arquivos: 16
  */
 (function() {
 "use strict";
 if (window.__PAINEL_INIT__) { console.warn("[Painel] Já inicializado."); return; }
 window.__PAINEL_INIT__ = true;
-window.__PAINEL_VERSION__ = "1.0.9";
+window.__PAINEL_VERSION__ = "1.0.10";
 
 
 // ════════════════════════════════════════════════════════════
