@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Painel Automações CEF
 // @namespace    stefanini/automacoes
-// @version      1.0.8
+// @version      1.0.9
 // @updateURL    https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
 // @downloadURL  https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
 // @description  Painel de controle unificado para automações SAT/SIACH/VROL
@@ -40,7 +40,7 @@
   // ── Guard: evita execução duplicada ──
   if (window.__PAINEL_INIT__) return;
   window.__PAINEL_INIT__ = true;
-  window.__PAINEL_VERSION__ = '1.0.8';
+  window.__PAINEL_VERSION__ = '1.0.9';
 
   // ===========================================================
   //  PLACEHOLDER: No build final, o conteúdo de core/* e
@@ -3114,6 +3114,8 @@
  * MÓDULO: Consulta Reportes de Fraude (SAT Menu 0181)
  * Consulta em lote de reportes de fraude por NUMEXP + TIPFRAN.
  * Usa lotes de 120 itens com pausa entre lotes.
+ *
+ * Base: /Consulta reportes de fraude/consultaReportesFraude.js
  */
 (function (PAINEL) {
   'use strict';
@@ -3140,53 +3142,83 @@
     return { numexp: numexp, tipfran: tipfran };
   }
 
-  function getPageValue(nome) {
+  /**
+   * Obtém o IdSession da página SAT (variável global do SAT).
+   * Alinhado com o script base que faz:
+   *   try { if (typeof IdSession !== 'undefined' && IdSession) return IdSession; } catch(e) {}
+   *   var m = document.cookie.match(/JSESSIONID=([^;]+)/);
+   */
+  function getSessionId() {
+    // 1. Tentar variável global IdSession (contexto SAT frameset)
     try {
-      if (typeof unsafeWindow !== 'undefined' && unsafeWindow[nome]) return unsafeWindow[nome];
+      if (typeof unsafeWindow !== 'undefined' && unsafeWindow.IdSession) return unsafeWindow.IdSession;
     } catch (e) { }
     try {
-      if (window[nome]) return window[nome];
-    } catch (e2) { }
-    return '';
-  }
-
-  function getSessionIdReportes(network) {
-    var idSession = getPageValue('IdSession');
-    if (idSession) return idSession;
-    return network.getSessionId();
+      if (typeof IdSession !== 'undefined' && IdSession) return IdSession;
+    } catch (e) { }
+    // 2. Tentar via window
+    try {
+      if (window.IdSession) return window.IdSession;
+    } catch (e) { }
+    // 3. Fallback: JSESSIONID do cookie (igual ao script base)
+    var m = document.cookie.match(/JSESSIONID=([^;]+)/);
+    if (m) return m[1];
+    throw new Error('SESSAO_EXPIRADA');
   }
 
   function getDataHoje() {
-    var dataSistema = getPageValue('sFechaSistema');
-    if (dataSistema) return dataSistema;
-    try { if (typeof sFechaSistema !== 'undefined' && sFechaSistema) return sFechaSistema; } catch (e) { }
+    // Tentar variável global do SAT
+    try {
+      if (typeof unsafeWindow !== 'undefined' && unsafeWindow.sFechaSistema) return unsafeWindow.sFechaSistema;
+    } catch (e) { }
+    try {
+      if (typeof sFechaSistema !== 'undefined' && sFechaSistema) return sFechaSistema;
+    } catch (e) { }
     var d = new Date();
     return String(d.getDate()).padStart(2, '0') + '-' +
       String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
   }
 
-  async function postReportes(endpoint, params, network, checkSessao) {
-    var text = await network.post(BASE + '/' + endpoint, params, { credentials: 'include' });
+  /**
+   * POST direto via fetch, replicando exatamente o comportamento do script base.
+   * O script base usa fetch direto com:
+   *   - Content-Type: application/x-www-form-urlencoded
+   *   - credentials: 'include'
+   *   - Detecção de sessão expirada: text.indexOf('IdSession') === -1 && text.length < 6000
+   *
+   * NÃO usamos network.post() do core porque a lógica de detecção de sessão
+   * do core (isSessaoExpirada: text.length < 2000 && text.indexOf('login') !== -1)
+   * é incompatível com as respostas do SAT menu 0181.
+   */
+  async function post(endpoint, params, checkSessao) {
+    var resp = await fetch(BASE + '/' + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params).toString(),
+      credentials: 'include',
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status + ' em ' + endpoint);
+    var text = await resp.text();
     if (checkSessao && text.indexOf('IdSession') === -1 && text.length < 6000) {
       throw new Error('SESSAO_EXPIRADA');
     }
     return text;
   }
 
-  async function buscarRegistros(NUMEXPAUX, tipfran, network, utils) {
-    var sessionId = getSessionIdReportes(network);
+  async function buscarRegistros(NUMEXPAUX, tipfran) {
+    var sessionId = getSessionId();
     var sIdWindow = sessionId + 'Interface';
     var dataHoje = getDataHoje();
 
-    // Pre-request AJAX
-    await postReportes('ServletAjax', {
+    // Pre-request AJAX (igual ao script base)
+    await post('ServletAjax', {
       REQUEST_TYPE: 'AJAX', Peticion: 'VALIDATRANSMTO',
       EventoEjecutar: 'deleteAndGoesToRecordConsHistoricoFranquiciasII',
       OperacionSolicitada: 'BUSCAR',
-    }, network);
+    });
 
-    // Main search request
-    var htmlBusca = await postReportes('ServletDirector', {
+    // Main search request (idêntico ao script base)
+    var htmlBusca = await post('ServletDirector', {
       TKCSRF: '', IPROTOCOLO: '', NUMREFD: '', PAND: '',
       DESFRAUDE: '', CONTCUR: '', CODSUBF: '', INDPAG: '',
       DESCLAMONLIQ: '', DESINDNORC: '', VALIDAR: '',
@@ -3218,19 +3250,19 @@
       sNombreEvento: 'viewConsHistoricoFranquiciasII',
       sIdWindow: sIdWindow, sIdWindowPadre: 'FrameProducto',
       consHistoricoFranquiciasII: 'true',
-    }, network, true);
+    }, true);
 
-    // Parse results
-    var registrosVistos = {};
+    // Parse results — usar Map como no script base
+    var registrosVistos = new Map();
     var reConsulta = /Consulta\(getFormulario[^,]+,\s*([^)]+)\)/g;
     var mc;
     while ((mc = reConsulta.exec(htmlBusca)) !== null) {
       var reSingleQ = /'([^']*)'/g;
       var a = [], sq;
       while ((sq = reSingleQ.exec(mc[1])) !== null) a.push(sq[1]);
-      if (a[20] && !registrosVistos[a[20]]) registrosVistos[a[20]] = a;
+      if (a[20] && !registrosVistos.has(a[20])) registrosVistos.set(a[20], a);
     }
-    return Object.values(registrosVistos);
+    return Array.from(registrosVistos.values());
   }
 
   PAINEL.registrarModulo({
@@ -3265,7 +3297,7 @@
       credentials: 'include',
     },
     processarUm: async function (item, core) {
-      var regs = await buscarRegistros(item.numexp, item.tipfran, core.network, core.utils);
+      var regs = await buscarRegistros(item.numexp, item.tipfran);
       var ts = core.utils.agora();
 
       if (regs.length === 0) {
@@ -3295,7 +3327,7 @@
     logItem: function (prefixo, item, regs, addLog) {
       var first = regs[0];
       if (first.STATUS === 'VAZIO') addLog(prefixo + ' VAZIO | ' + item.numexp);
-      else addLog(prefixo + ' OK (' + regs.length + ' reg) | ' + item.numexp);
+      else addLog(prefixo + ' OK (' + regs.length + ' reg) | ' + item.numexp + ' | PAN: ' + (regs[0].PAN || '?'));
     },
   });
 
