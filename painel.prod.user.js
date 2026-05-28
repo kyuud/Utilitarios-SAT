@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Painel Automações CEF
 // @namespace    stefanini/automacoes
-// @version      1.0.10
+// @version      1.0.11
 // @updateURL    https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
 // @downloadURL  https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
 // @description  Painel de controle unificado para automações SAT/SIACH/VROL
@@ -40,13 +40,7 @@
   // ── Guard: evita execução duplicada ──
   if (window.__PAINEL_INIT__) return;
   window.__PAINEL_INIT__ = true;
-  window.__PAINEL_VERSION__ = '1.0.10';
-
-  // ===========================================================
-  //  PLACEHOLDER: No build final, o conteúdo de core/* e
-  //  modules/* será injetado aqui pelo build.js.
-  //  Durante desenvolvimento, carregue os arquivos via
-  //  servidor local (ver instruções no README).
+  window.__PAINEL_VERSION__ = '1.0.11';
   // ===========================================================
 
   // ── Modo Desenvolvimento: carrega scripts de um servidor local ──
@@ -3120,7 +3114,7 @@
 (function (PAINEL) {
   'use strict';
 
-  var BASE = '/sat/servlet';
+  var BASE = 'https://cartoes.extracaixa/sat/servlet';
 
   var CSV_COLS = [
     'DataHora', 'NumeroExpediente', 'TIPFRAN', 'STATUS',
@@ -3295,6 +3289,28 @@
       url: BASE + '/ServletAjax',
       body: 'REQUEST_TYPE=AJAX&Peticion=VALIDATRANSMTO&EventoEjecutar=deleteAndGoesToRecordConsHistoricoFranquiciasII&OperacionSolicitada=BUSCAR',
       credentials: 'include',
+    },
+    inicializar: async function (core) {
+      var sessionId = getSessionId();
+      var sIdWindow = sessionId + 'Interface';
+      await post('ServletDirector', {
+        CODPERFIL: 'BK05',
+        CODENT: '0104',
+        CODPAIS: '76',
+        DESCODENT: 'CAIXA ECONOMICA FEDERAL',
+        DESENTIDAD: 'CAIXA ECONOMICA FEDERAL',
+        AUX_CODPERFIL: 'BK05',
+        PROCESOSCRITICOS: '',
+        NoCapaProteccion: 'S',
+        sNombreMenuAnt: '',
+        sNombreMenuAct: '0181',
+        indexPrincipal: ['true', 'true', 'true', 'true', 'true', 'true'],
+        sNombreEvento: '0181',
+        sIdWindow: sIdWindow,
+        sIdWindowPadre: 'FrameProducto',
+        sTarget: sIdWindow,
+      });
+      await core.utils.esperar(400);
     },
     processarUm: async function (item, core) {
       var regs = await buscarRegistros(item.numexp, item.tipfran);

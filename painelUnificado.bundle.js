@@ -1,13 +1,13 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-28T13:49:51.335698
+ * Data: 2026-05-28T13:55:10.430910
  * Arquivos: 16
  */
 (function() {
 "use strict";
 if (window.__PAINEL_INIT__) { console.warn("[Painel] Já inicializado."); return; }
 window.__PAINEL_INIT__ = true;
-window.__PAINEL_VERSION__ = "1.0.10";
+window.__PAINEL_VERSION__ = "1.0.11";
 
 
 // ════════════════════════════════════════════════════════════
@@ -3064,7 +3064,7 @@ window.__PAINEL_VERSION__ = "1.0.10";
 (function (PAINEL) {
   'use strict';
 
-  var BASE = '/sat/servlet';
+  var BASE = 'https://cartoes.extracaixa/sat/servlet';
 
   var CSV_COLS = [
     'DataHora', 'NumeroExpediente', 'TIPFRAN', 'STATUS',
@@ -3239,6 +3239,28 @@ window.__PAINEL_VERSION__ = "1.0.10";
       url: BASE + '/ServletAjax',
       body: 'REQUEST_TYPE=AJAX&Peticion=VALIDATRANSMTO&EventoEjecutar=deleteAndGoesToRecordConsHistoricoFranquiciasII&OperacionSolicitada=BUSCAR',
       credentials: 'include',
+    },
+    inicializar: async function (core) {
+      var sessionId = getSessionId();
+      var sIdWindow = sessionId + 'Interface';
+      await post('ServletDirector', {
+        CODPERFIL: 'BK05',
+        CODENT: '0104',
+        CODPAIS: '76',
+        DESCODENT: 'CAIXA ECONOMICA FEDERAL',
+        DESENTIDAD: 'CAIXA ECONOMICA FEDERAL',
+        AUX_CODPERFIL: 'BK05',
+        PROCESOSCRITICOS: '',
+        NoCapaProteccion: 'S',
+        sNombreMenuAnt: '',
+        sNombreMenuAct: '0181',
+        indexPrincipal: ['true', 'true', 'true', 'true', 'true', 'true'],
+        sNombreEvento: '0181',
+        sIdWindow: sIdWindow,
+        sIdWindowPadre: 'FrameProducto',
+        sTarget: sIdWindow,
+      });
+      await core.utils.esperar(400);
     },
     processarUm: async function (item, core) {
       var regs = await buscarRegistros(item.numexp, item.tipfran);

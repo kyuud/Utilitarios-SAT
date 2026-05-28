@@ -8,7 +8,7 @@
 (function (PAINEL) {
   'use strict';
 
-  var BASE = '/sat/servlet';
+  var BASE = 'https://cartoes.extracaixa/sat/servlet';
 
   var CSV_COLS = [
     'DataHora', 'NumeroExpediente', 'TIPFRAN', 'STATUS',
@@ -183,6 +183,28 @@
       url: BASE + '/ServletAjax',
       body: 'REQUEST_TYPE=AJAX&Peticion=VALIDATRANSMTO&EventoEjecutar=deleteAndGoesToRecordConsHistoricoFranquiciasII&OperacionSolicitada=BUSCAR',
       credentials: 'include',
+    },
+    inicializar: async function (core) {
+      var sessionId = getSessionId();
+      var sIdWindow = sessionId + 'Interface';
+      await post('ServletDirector', {
+        CODPERFIL: 'BK05',
+        CODENT: '0104',
+        CODPAIS: '76',
+        DESCODENT: 'CAIXA ECONOMICA FEDERAL',
+        DESENTIDAD: 'CAIXA ECONOMICA FEDERAL',
+        AUX_CODPERFIL: 'BK05',
+        PROCESOSCRITICOS: '',
+        NoCapaProteccion: 'S',
+        sNombreMenuAnt: '',
+        sNombreMenuAct: '0181',
+        indexPrincipal: ['true', 'true', 'true', 'true', 'true', 'true'],
+        sNombreEvento: '0181',
+        sIdWindow: sIdWindow,
+        sIdWindowPadre: 'FrameProducto',
+        sTarget: sIdWindow,
+      });
+      await core.utils.esperar(400);
     },
     processarUm: async function (item, core) {
       var regs = await buscarRegistros(item.numexp, item.tipfran);
