@@ -3120,7 +3120,7 @@
 (function (PAINEL) {
   'use strict';
 
-  var BASE = 'https://cartoes.extracaixa/sat/servlet';
+  var BASE = '/sat/servlet';
 
   var CSV_COLS = [
     'DataHora', 'NumeroExpediente', 'TIPFRAN', 'STATUS',

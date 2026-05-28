@@ -1,6 +1,6 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-28T10:45:53.804546
+ * Data: 2026-05-28T13:46:22.138049
  * Arquivos: 16
  */
 (function() {
@@ -3064,7 +3064,7 @@ window.__PAINEL_VERSION__ = "1.0.9";
 (function (PAINEL) {
   'use strict';
 
-  var BASE = 'https://cartoes.extracaixa/sat/servlet';
+  var BASE = '/sat/servlet';
 
   var CSV_COLS = [
     'DataHora', 'NumeroExpediente', 'TIPFRAN', 'STATUS',
