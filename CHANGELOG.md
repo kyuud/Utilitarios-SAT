@@ -1,5 +1,15 @@
 # Changelog — Painel Unificado de Automações
 
+## v1.0.13 — 2026-08-28
+
+### Módulos
+- Atualiza `mod_siach_ocorrencias.js` com a lógica enriquecida de `extrator_ocorrencias_siach_completo.js`.
+- Consulta a view detalhada da ocorrência (`/manter/consulta/ocorrencia/view/{id}`) capturando 23 campos completos (incluindo `Motivo`, `Titular`, `Documento`, `Telefone`, `Usuário`, `Área Origem`, `Observação Completa`, `Titular Desacordo` e `Relato Desacordo`).
+- Não descarta ocorrências em outras situações (processa todas as ocorrências do protocolo).
+- Exportação em planilha XLSX com abas `"Ocorrências SIACH"` e `"Resumo"`.
+
+---
+
 ## v1.0.12 — 2026-08-28
 
 ### Módulos

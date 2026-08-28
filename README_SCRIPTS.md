@@ -67,6 +67,6 @@ Cada arquivo de módulo implementa uma tarefa de automação específica que é 
     *   *Entrada:* NUMEXP na coluna A.
     *   *Saída (CSV):* Dados consolidados do SAT cruzados com os status de chargebacks e disputas retornados do VROL.
 *   [mod_siach_ocorrencias.js](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_siach_ocorrencias.js)
-    *   *Objetivo:* Consulta ocorrências ativas e transações vinculadas no SIACH (REST API).
+    *   *Objetivo:* Consulta e extração completa de ocorrências no SIACH via API REST (incluindo view enriquecida, relatos, histórico e desacordos comerciais).
     *   *Entrada:* Protocolo na coluna A.
-    *   *Saída (XLSX):* Planilha de ocorrências detalhadas e transações mapeadas no SIACH.
+    *   *Saída (XLSX):* Planilha com 23 campos completos de ocorrências SIACH e aba de Resumo consolidado.

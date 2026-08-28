@@ -1,13 +1,13 @@
 /**
  * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-08-28T17:29:53.460671
+ * Data: 2026-08-28T17:48:59.768907
  * Arquivos: 16
  */
 (function() {
 "use strict";
 if (window.__PAINEL_INIT__) { console.warn("[Painel] Já inicializado."); return; }
 window.__PAINEL_INIT__ = true;
-window.__PAINEL_VERSION__ = "1.0.12";
+window.__PAINEL_VERSION__ = "1.0.13";
 
 
 // ════════════════════════════════════════════════════════════
@@ -4146,9 +4146,9 @@ window.__PAINEL_VERSION__ = "1.0.12";
 // Arquivo: modules/mod_siach_ocorrencias.js
 // ──────────────────────────────────────────────────────────
 /**
- * MÓDULO: Extrator de Ocorrências SIACH (REST API)
- * Consulta protocolo → lista ocorrências EM_ANDAMENTO → detalhe/transações.
- * Saída: uma linha por transação (ou uma por ocorrência sem transação).
+ * MÓDULO: Extrator Completo de Ocorrências SIACH (REST API)
+ * Consulta protocolo → lista ocorrências → view individual da ocorrência (/view/{id}).
+ * Extrai dados completos de atendimento, relato e desacordo comercial.
  * Exporta XLSX com aba de resumo.
  */
 (function (PAINEL) {
@@ -4158,14 +4158,19 @@ window.__PAINEL_VERSION__ = "1.0.12";
   var PER_PAGE = 100;
 
   var CSV_COLS = [
-    'protocolo', 'ocorrencia_siach', 'situacao', 'fase', 'submotivo', 'sla',
-    'contrato', 'cartao', 'tipfran', 'bandeira', 'opcao_bandeira',
-    'data_abertura', 'data_sla', 'ultima_atualizacao', 'area',
-    'ocorrencia_sat', 'data_transacao', 'estabelecimento', 'titular_cartao',
-    'valor_original', 'valor_nacional', 'valor_dolar',
-    'moeda', 'pais', 'tipo_transacao', 'tipo_lancamento_fatura',
-    'status_reinclusao', 'cartao_transacao', 'descricao_retorno',
+    'protocolo', 'ocorrencia_siach', 'situacao', 'fase', 'motivo', 'submotivo',
+    'sla', 'contrato', 'cartao', 'titular', 'documento', 'tipo_documento',
+    'telefone', 'data_abertura', 'data_sla', 'ultima_atualizacao', 'area',
+    'usuario', 'area_origem', 'observacao', 'desacordo_titular', 'desacordo_relato',
     'status_consulta',
+  ];
+
+  var XLSX_HEADERS = [
+    'Protocolo', 'Ocorrência SIACH', 'Situação', 'Fase', 'Motivo', 'Submotivo',
+    'SLA', 'Contrato', 'Cartão', 'Titular', 'Documento', 'Tipo Documento',
+    'Telefone', 'Data Abertura', 'Data SLA', 'Última Atualização', 'Área',
+    'Usuário', 'Área Origem', 'Observação Completa', 'Titular Desacordo', 'Relato Desacordo',
+    'Status Consulta',
   ];
 
   function formatarProtocolo(proto) {
@@ -4179,7 +4184,10 @@ window.__PAINEL_VERSION__ = "1.0.12";
     var url = API_BASE + '/manter/consulta/ocorrencia/filtrar?page=1&perPage=' + PER_PAGE;
     var resp = await fetch(url, {
       method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8' },
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json;charset=UTF-8',
+      },
       body: JSON.stringify({ atender: true, situacoes: [], protocoloComDigito: formatarProtocolo(protocol) }),
       credentials: 'include',
     });
@@ -4188,37 +4196,48 @@ window.__PAINEL_VERSION__ = "1.0.12";
       throw new Error('HTTP ' + resp.status);
     }
     var text = await resp.text();
-    if (text.length < 500 && (text.indexOf('login') !== -1 || text.indexOf('unauthorized') !== -1))
+    if (text.length < 500 && (text.indexOf('login') !== -1 || text.indexOf('unauthorized') !== -1)) {
       throw new Error('SESSAO_EXPIRADA');
+    }
     var json = JSON.parse(text);
     return json.list || [];
   }
 
-  async function buscarDetalheOcorrencia(numOcorrencia) {
-    var resp = await fetch(API_BASE + '/manter/expediente/' + numOcorrencia, {
-      method: 'GET', headers: { Accept: 'application/json' }, credentials: 'include',
+  async function buscarDetalheOcorrenciaView(numeroOcorrencia) {
+    var url = API_BASE + '/manter/consulta/ocorrencia/view/' + numeroOcorrencia;
+    var resp = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json, text/plain, */*' },
+      credentials: 'include',
     });
     if (!resp.ok) {
       if (resp.status === 401 || resp.status === 403) throw new Error('SESSAO_EXPIRADA');
-      throw new Error('HTTP ' + resp.status);
+      throw new Error('HTTP ' + resp.status + ' ao consultar view ' + numeroOcorrencia);
     }
     var text = await resp.text();
-    if (text.length < 500 && text.indexOf('login') !== -1) throw new Error('SESSAO_EXPIRADA');
-    try { var data = JSON.parse(text); return Array.isArray(data) ? data : []; } catch (e) { return []; }
+    if (text.length < 500 && (text.indexOf('login') !== -1 || text.indexOf('unauthorized') !== -1)) {
+      throw new Error('SESSAO_EXPIRADA');
+    }
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      return null;
+    }
   }
 
   PAINEL.registrarModulo({
     id: 'siach_ocorrencias',
-    nome: 'Extrator SIACH Ocorrências',
+    nome: 'Extrator SIACH Ocorrências Completo',
     icone: '📂',
     cor: 'linear-gradient(90deg,#00e5ff,#0097a7)',
-    descricao: 'Extrai ocorrências EM_ANDAMENTO + transações por protocolo',
+    descricao: 'Extrai ocorrências completas (fase, relato, desacordo, observação) por protocolo',
     sistema: 'SIACH',
-    storageKey: '_extrator_siach_v1',
-    intervaloMS: 800,
+    storageKey: '_extrator_siach_completo_v1',
+    intervaloMS: 50,
     tamLote: 50,
     pausaLoteMS: 3000,
     csvCols: CSV_COLS,
+    xlsxHeaders: XLSX_HEADERS,
     exportFormat: 'xlsx',
     inputConfig: {
       instrucao: 'XLSX: col A = Protocolo (com dígito)',
@@ -4239,102 +4258,143 @@ window.__PAINEL_VERSION__ = "1.0.12";
       var ocorrencias = await consultarProtocolo(protocol);
 
       if (!ocorrencias || ocorrencias.length === 0) {
-        return {
-          protocolo: protocol, ocorrencia_siach: '', situacao: '', fase: '',
-          submotivo: '', sla: '', contrato: '', cartao: '', tipfran: '', bandeira: '',
-          opcao_bandeira: '', data_abertura: '', data_sla: '', ultima_atualizacao: '',
-          area: '', ocorrencia_sat: '', data_transacao: '', estabelecimento: '',
-          titular_cartao: '', valor_original: '', valor_nacional: '', valor_dolar: '',
-          moeda: '', pais: '', tipo_transacao: '', tipo_lancamento_fatura: '',
-          status_reinclusao: '', cartao_transacao: '', descricao_retorno: '',
-          status_consulta: 'VAZIO',
-        };
+        var vazio = {};
+        CSV_COLS.forEach(function (c) { vazio[c] = ''; });
+        vazio.protocolo = protocol;
+        vazio.status_consulta = 'VAZIO';
+        vazio.STATUS = 'VAZIO';
+        return vazio;
       }
 
       var registros = [];
       for (var i = 0; i < ocorrencias.length; i++) {
         var occ = ocorrencias[i];
-        if (occ.situacao !== 'EM_ANDAMENTO') continue;
+        var ocorrenciaSiach = occ.numeroOcorrencia || '';
 
-        var fase = ''; try { fase = occ.ultimoMovimento.fase.nome; } catch (e) { fase = occ.situacao || ''; }
-        var numCartao = ''; try { numCartao = occ.protocolo.cartao.numeroCartao || ''; } catch (e) { }
-        var tipfran = ''; try { tipfran = String(occ.protocolo.cartao.tipfran || occ.protocolo.tipfran || ''); } catch (e) { }
-        var bandeira = (PAINEL.utils && PAINEL.utils.CODIGO_PARA_BANDEIRA) ? (PAINEL.utils.CODIGO_PARA_BANDEIRA[tipfran] || '') : '';
-        var contrato = ''; try { contrato = core.utils.zeroFill(occ.protocolo.cartao.conta, 11); } catch (e) { }
-        var dtAbertura = ''; try { dtAbertura = core.utils.formatarData(occ.dtAbertura); } catch (e) { }
-        var dtSla = ''; try { dtSla = core.utils.formatarData(occ.dtSlaVermelho); } catch (e) { }
-        var ultAtualiz = ''; try { ultAtualiz = core.utils.formatarData(occ.ultimoMovimento.dtExecucao); } catch (e) { }
-        var area = ''; try { area = occ.ultimoMovimento.areaAtual.nome; } catch (e) { }
-        var numOcorr = occ.numeroOcorrencia || '';
-        var situacao = occ.situacao || '';
-        var submotivo = ''; try { submotivo = occ.submotivo.nome || ''; } catch (e) { }
-        var sla = occ.sla || '';
-
-        var dadosBase = {
-          protocolo: protocol, ocorrencia_siach: numOcorr, situacao: situacao,
-          fase: fase, submotivo: submotivo, sla: sla, contrato: contrato,
-          cartao: numCartao, tipfran: tipfran, bandeira: bandeira,
-          opcao_bandeira: tipfran ? (tipfran + ' - ' + bandeira) : '',
-          data_abertura: dtAbertura, data_sla: dtSla,
-          ultima_atualizacao: ultAtualiz, area: area,
-        };
-
-        var transacoes = [];
-        try { transacoes = await buscarDetalheOcorrencia(numOcorr); } catch (e) {
+        var viewData = null;
+        try {
+          viewData = await buscarDetalheOcorrenciaView(ocorrenciaSiach);
+        } catch (e) {
           if (e.message === 'SESSAO_EXPIRADA') throw e;
         }
 
-        if (transacoes.length === 0) {
-          var r = {};
-          for (var k in dadosBase) r[k] = dadosBase[k];
-          r.ocorrencia_sat = ''; r.data_transacao = ''; r.estabelecimento = '';
-          r.titular_cartao = ''; r.valor_original = ''; r.valor_nacional = '';
-          r.valor_dolar = ''; r.moeda = ''; r.pais = ''; r.tipo_transacao = '';
-          r.tipo_lancamento_fatura = ''; r.status_reinclusao = '';
-          r.cartao_transacao = ''; r.descricao_retorno = '';
-          r.status_consulta = 'ENCONTRADO';
-          registros.push(r);
-        } else {
-          for (var t = 0; t < transacoes.length; t++) {
-            var tx = transacoes[t];
-            var r = {};
-            for (var k in dadosBase) r[k] = dadosBase[k];
-            r.ocorrencia_sat = tx.numeroRetorno || '';
-            r.data_transacao = tx.dataTransacao || '';
-            r.estabelecimento = tx.nomeEstabelecimento || '';
-            r.titular_cartao = tx.titularCartao || '';
-            r.valor_original = tx.valorOriginalFormatado || String(tx.valorOriginal || '');
-            r.valor_nacional = tx.valorNacionalFormatado || String(tx.valorNacional || '');
-            r.valor_dolar = tx.valorDolarFormatado || String(tx.valorDolar || '');
-            r.moeda = (tx.nomeMoeda || '').trim();
-            r.pais = tx.nomePais || '';
-            r.tipo_transacao = tx.tipoTransacao || '';
-            r.tipo_lancamento_fatura = tx.tipoLancamentoFatura || '';
-            r.status_reinclusao = tx.dataReinclusaoTransacao || '';
-            r.cartao_transacao = tx.numeroCartaoFormatado || '';
-            r.descricao_retorno = tx.descricaoRetorno || '';
-            r.status_consulta = 'ENCONTRADO';
-            registros.push(r);
-          }
-        }
-        if (i < ocorrencias.length - 1) await core.utils.esperar(300);
+        var target = viewData || occ;
+
+        // Fase
+        var fase = '';
+        try { fase = target.ultimoMovimento.fase.nome; } catch (e) { fase = target.situacao || ''; }
+
+        // Cartão e Contrato
+        var numeroCartao = '';
+        try { numeroCartao = target.protocolo.cartao.numeroCartaoFormatado || target.protocolo.cartao.numeroCartao || ''; } catch (e) { }
+        var contrato = '';
+        try { contrato = target.protocolo.cartao.contaFormatado || core.utils.zeroFill(target.protocolo.cartao.conta, 11); } catch (e) { }
+
+        // Titular e Documento
+        var titular = '';
+        try { titular = target.protocolo.cartao.titularConta || (target.cartaoTitular && target.cartaoTitular.titularConta) || ''; } catch (e) { }
+        var documento = '';
+        try { documento = target.protocolo.cartao.documentoTitularFormatado || target.protocolo.cartao.numeroCpfCnpj || (target.cartaoTitular && target.cartaoTitular.documentoTitularFormatado) || ''; } catch (e) { }
+        var tipoDocumento = '';
+        try { tipoDocumento = target.protocolo.cartao.tipoDocumento || (target.cartaoTitular && target.cartaoTitular.tipoDocumento) || ''; } catch (e) { }
+        var telefone = '';
+        try { telefone = target.protocolo.cartao.telefone || (target.cartaoTitular && target.cartaoTitular.telefone) || ''; } catch (e) { }
+
+        // Datas
+        var dataAbertura = '';
+        try { dataAbertura = core.utils.formatarData(target.dtAbertura); } catch (e) { }
+        var dataSla = '';
+        try { dataSla = core.utils.formatarData(target.dtSlaVermelho); } catch (e) { }
+        var ultimaAtualizacao = '';
+        try { ultimaAtualizacao = core.utils.formatarData(target.ultimoMovimento.dtExecucao); } catch (e) { }
+
+        // Área e Usuário
+        var area = '';
+        try { area = target.ultimoMovimento.areaAtual.nome; } catch (e) { }
+        var usuario = '';
+        try { usuario = target.ultimoMovimento.usuario.nome; } catch (e) { }
+        var areaOrigem = '';
+        try { areaOrigem = target.areaOrigem.nome || ''; } catch (e) { }
+
+        // Outros campos
+        var situacao = '';
+        try { situacao = target.situacao || ''; } catch (e) { }
+        var submotivo = '';
+        try { submotivo = target.submotivo.nome || ''; } catch (e) { }
+        var motivo = '';
+        try { motivo = target.submotivo.motivo.nome || ''; } catch (e) { }
+        var sla = '';
+        try { sla = target.sla || ''; } catch (e) { }
+        var observacao = '';
+        try { observacao = target.observacao || ''; } catch (e) { }
+
+        // Desacordo
+        var desacordoTitular = '';
+        try { desacordoTitular = target.desacordo.titularCartao || ''; } catch (e) { }
+        var desacordoRelato = '';
+        try { desacordoRelato = target.desacordo.relatoClienteOcorrido || ''; } catch (e) { }
+
+        registros.push({
+          protocolo: protocol,
+          ocorrencia_siach: ocorrenciaSiach,
+          situacao: situacao,
+          fase: fase,
+          motivo: motivo,
+          submotivo: submotivo,
+          sla: sla,
+          contrato: contrato,
+          cartao: numeroCartao,
+          titular: titular,
+          documento: documento,
+          tipo_documento: tipoDocumento,
+          telefone: telefone,
+          data_abertura: dataAbertura,
+          data_sla: dataSla,
+          ultima_atualizacao: ultimaAtualizacao,
+          area: area,
+          usuario: usuario,
+          area_origem: areaOrigem,
+          observacao: observacao,
+          desacordo_titular: desacordoTitular,
+          desacordo_relato: desacordoRelato,
+          status_consulta: 'ENCONTRADO',
+          STATUS: 'OK',
+        });
+
+        if (i < ocorrencias.length - 1) await core.utils.esperar(150);
       }
 
-      return registros.length > 0 ? registros : {
-        protocolo: protocol, status_consulta: 'VAZIO',
-        ocorrencia_siach: '', situacao: '', fase: '', submotivo: '', sla: '',
-        contrato: '', cartao: '', tipfran: '', bandeira: '', opcao_bandeira: '',
-        data_abertura: '', data_sla: '', ultima_atualizacao: '', area: '',
-        ocorrencia_sat: '', data_transacao: '', estabelecimento: '', titular_cartao: '',
-        valor_original: '', valor_nacional: '', valor_dolar: '', moeda: '', pais: '',
-        tipo_transacao: '', tipo_lancamento_fatura: '', status_reinclusao: '',
-        cartao_transacao: '', descricao_retorno: '',
-      };
+      return registros;
     },
+
+    gerarResumo: function (dados) {
+      var protocolosUnicos = {};
+      dados.forEach(function (d) { if (d.protocolo) protocolosUnicos[d.protocolo] = true; });
+      var totalProtos = Object.keys(protocolosUnicos).length;
+      var totalEncontradas = dados.filter(function (d) { return d.status_consulta === 'ENCONTRADO'; }).length;
+      var totalVazias = dados.filter(function (d) { return d.status_consulta === 'VAZIO'; }).length;
+      var totalErros = dados.filter(function (d) { return d.status_consulta && d.status_consulta.indexOf('ERRO') !== -1; }).length;
+
+      return [
+        ['Resumo da Extração Completa SIACH'],
+        [''],
+        ['Data/Hora da Extração', PAINEL.utils.agora()],
+        ['Total de Protocolos', totalProtos],
+        ['Total de Ocorrências', totalEncontradas],
+        ['Protocolos Vazios', totalVazias],
+        ['Erros', totalErros],
+      ];
+    },
+
     logItem: function (prefixo, item, regs, addLog) {
       var first = regs[0];
-      if (first.status_consulta === 'VAZIO') addLog(prefixo + ' VAZIO | ' + item);
-      else addLog(prefixo + ' OK (' + regs.length + ' tx) | ' + item);
+      if (!first || first.status_consulta === 'VAZIO') {
+        addLog(prefixo + ' VAZIO | ' + item);
+      } else if (first.status_consulta && first.status_consulta.indexOf('ERRO') !== -1) {
+        addLog(prefixo + ' ' + first.status_consulta + ' | ' + item);
+      } else {
+        addLog(prefixo + ' OK (' + regs.length + ' ocorrência' + (regs.length > 1 ? 's' : '') + ') | ' + item);
+      }
     },
   });
 
