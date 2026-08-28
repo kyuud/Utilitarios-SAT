@@ -7,8 +7,8 @@
  Gera também a versão Tampermonkey com código inline.
 
  Uso:  python build.py
- Saída: painelUnificado.bundle.js
-        painel.prod.user.js
+ Saída: painel_unificado.bundle.js
+        painel_prod.user.js
 ═══════════════════════════════════════════════════════════
 """
 
@@ -104,7 +104,7 @@ if (window.__PAINEL_CORE__ && window.__PAINEL_CORE__.ui) {
 bundle = ''.join(bundle_parts)
 
 # ── Escrever bundle ──
-out_path = os.path.join(ROOT, 'painelUnificado.bundle.js')
+out_path = os.path.join(ROOT, 'painel_unificado.bundle.js')
 with open(out_path, 'w', encoding='utf-8') as f:
     f.write(bundle)
 
@@ -140,7 +140,7 @@ if os.path.isfile(user_script_path):
         after = user_script[end_idx + len(end_marker):]
         final_user_script = before + start_marker + '\n' + inline_content + '\n' + end_marker + after
 
-        out_user_path = os.path.join(ROOT, 'painel.prod.user.js')
+        out_user_path = os.path.join(ROOT, 'painel_prod.user.js')
         with open(out_user_path, 'w', encoding='utf-8') as f:
             f.write(final_user_script)
 

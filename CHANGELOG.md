@@ -1,5 +1,17 @@
 # Changelog — Painel Unificado de Automações
 
+## v1.0.12 — 2026-08-28
+
+### Módulos
+- Atualiza `mod_consulta_completa.js` com a lógica e campos do script `sat_consulta_completa_rotulada.js`.
+- Exportação em CSV do `mod_consulta_completa.js` agora conta com **62 colunas com cabeçalhos em Português** (ex: `Nº Processo`, `Nº Ocorrência`, `Nº Cartão`, `ARN`, `Data Solução`, `Status Processamento`).
+- Adiciona extração dos campos de busca: `Situação Reporte Fraude` (`DESSITFRAUDE`), `Data Finalização Processo` (`FECCIERRE`) e `Prazo de Vencimento` (`INDPLAVEN`).
+- Adiciona extração dos campos de detalhe: `Data Solução` (`FECSOLINC`), `Usuário Solução` (`USUARIOSOL`), `Data/Hora Solução` (`FECHORASOL`), `Nº Switch Autorização` (`SIAIDCD`), `Contrato` (`CUENTA`), `Agência` (`CENTALTA`), `Situação da Conta` (`CODESTCTA`), `Último Bloqueio da Conta` (`CODBLQCTA1`), `Situação do Cartão` (`INDSITTAR`) e `Bloqueio do Cartão` (`CODBLQ_PAN`).
+- Implementa fallbacks aprimorados para `CLAMONDIV` (descrição completa da moeda), `CODSUBFRA` (regex em scripts da página) e `CODSOLCON` (fallback para `CODSOLINC`/`CODSOLINCAUX`).
+- Atualiza `mod_incoming_voucher.js` sincronizado com o script de referência `mensagem_incoming_voucher_por_ARN.js`, incluindo payload completo de busca/detalhe, campos críticos para a navegação ao menu 0884 (Voucher), extração com estratégia dupla (CSS + regex fallback) e reset limpo ao menu de busca.
+
+---
+
 ## v1.0.8 — 2026-05-14
 
 ### Correções Aplicadas
@@ -24,7 +36,7 @@
 
 ### Metadados
 - Atualiza o `@author` do userscript para `Wallyson Batista`.
-- Mantém `painel.prod.user.js` regenerado a partir de `painel.user.js`.
+- Mantém `painel_prod.user.js` regenerado a partir de `painel.user.js`.
 
 ### Versionamento
 - Define o uso de tags Git para releases publicadas.
@@ -52,7 +64,7 @@
 
 ### Ajustes de Painel
 - Atualiza nomes e descrições dos módulos no painel.
-- Regenera `painel.prod.user.js` e `painelUnificado.bundle.js` com os ajustes de exibição.
+- Regenera `painel_prod.user.js` e `painel_unificado.bundle.js` com os ajustes de exibição.
 
 ### Tooling
 - Ajusta a formatação e a indentação automática do `build.py`.
@@ -66,7 +78,7 @@
 2. **Parsing manual desacoplado** — `core/dataIO.js` adiciona `carregarManualTexto()` para reaproveitar o parser manual sem abrir popups/modais nativos no contexto do SAT.
 3. **Confirmação de voltar ao menu no painel** — `core/ui.js` adiciona `confirmarNoPainel()` e passa a usar o `confirm()` da janela do painel ao clicar em `← Menu`.
 4. **Confirmação de retomada no painel** — `core/persistence.js` aceita `confirmFn` em `tentarRetomar()`, permitindo que a pergunta de retomada de progresso também seja exibida no painel.
-5. **Build atualizado** — `painelUnificado.bundle.js` e `painel.prod.user.js` regenerados via `python build.py`.
+5. **Build atualizado** — `painel_unificado.bundle.js` e `painel_prod.user.js` regenerados via `python build.py`.
 
 ---
 
@@ -99,12 +111,12 @@
 | 2 | `mod_nucaso.js` | SAT 0209 | `sat_consulta_nucaso.js` |
 | 3 | `mod_vinculacao_voucher.js` | SAT 0209 | `sat_consulta_vinculacaovoucher.js` |
 | 4 | `mod_detalhe_direto.js` | SAT Ajax | `sat_detalhe_direto.js` |
-| 5 | `mod_compra_segura.js` | SAT Ajax | `extratorCompraSegura.js` |
+| 5 | `mod_compra_segura.js` | SAT Ajax | `extrator_compra_segura.js` |
 | 6 | `mod_reportes_fraude.js` | SAT 0181 | `consultaReportesFraude.js` |
 | 7 | `mod_consulta_completa.js` | SAT 0209 | `sat_consulta_completa.js` |
 | 8 | `mod_incoming_voucher.js` | SAT 0311→0884 | `mensagem_incoming_voucher_por_ARN.js` |
 | 9 | `mod_sat_vrol.js` | SAT+VROL | `sat_vrol_consulta.js` |
-| 10 | `mod_siach_ocorrencias.js` | SIACH REST | `extratorOcorrenciasSIACH.js` |
+| 10 | `mod_siach_ocorrencias.js` | SIACH REST | `extrator_ocorrencias_siach.js` |
 
 ### Tooling
 - **`build.py`** — Script Python para concatenar core + modules e gerar bundle + userscript de produção.

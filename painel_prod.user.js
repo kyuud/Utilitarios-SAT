@@ -1,18 +1,104 @@
+// ==UserScript==
+// @name         Painel Automações CEF
+// @namespace    stefanini/automacoes
+// @version      1.0.12
+// @updateURL    https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel_prod.user.js
+// @downloadURL  https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel_prod.user.js
+// @description  Painel de controle unificado para automações SAT/SIACH/VROL
+// @author       Wallyson Batista
+// @match        https://cartoes.extracaixa/*
+// @match        https://cartoes.extracaixa:*/*
+// @match        https://vrol.visaonline.com/*
+// @match        https://www.vrol.visaonline.com/*
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
+// @grant        GM_addValueChangeListener
+// @grant        GM_removeValueChangeListener
+// @grant        GM_info
+// @grant        unsafeWindow
+// @run-at       document-idle
+// @noframes
+// ==/UserScript==
+
 /**
- * PAINEL UNIFICADO — Bundle Gerado Automaticamente
- * Data: 2026-05-28T13:55:10.430910
- * Arquivos: 16
+ * ═══════════════════════════════════════════════════════════
+ *  PAINEL UNIFICADO — Tampermonkey Entry Point
+ *
+ *  Este arquivo é o ponto de entrada para o Tampermonkey.
+ *  Para usar MANUALMENTE (sem Tampermonkey), utilize o arquivo
+ *  gerado pelo build.js: painel_unificado.bundle.js
+ *
+ *  Para DESENVOLVIMENTO, o build.js concatena core/ + modules/
+ *  e embute tudo neste wrapper.
+ * ═══════════════════════════════════════════════════════════
  */
-(function() {
-"use strict";
-if (window.__PAINEL_INIT__) { console.warn("[Painel] Já inicializado."); return; }
-window.__PAINEL_INIT__ = true;
-window.__PAINEL_VERSION__ = "1.0.11";
 
+(function () {
+  'use strict';
 
-// ════════════════════════════════════════════════════════════
-// Arquivo: core/utils.js
-// ──────────────────────────────────────────────────────────
+  // ── Guard: evita execução duplicada ──
+  if (window.__PAINEL_INIT__) return;
+  window.__PAINEL_INIT__ = true;
+  window.__PAINEL_VERSION__ = '1.0.12';
+  // ===========================================================
+
+  // ── Modo Desenvolvimento: carrega scripts de um servidor local ──
+  var DEV_MODE = false;  // Mude para true durante desenvolvimento
+  var DEV_SERVER = 'http://localhost:8080/PainelUnificado';
+
+  if (DEV_MODE) {
+    var scripts = [
+      '/core/utils.js',
+      '/core/network.js',
+      '/core/vrolBridge.js',
+      '/core/persistence.js',
+      '/core/dataIO.js',
+      '/core/ui.js',
+      // Módulos
+      '/modules/mod_consulta_redes.js',
+      '/modules/mod_nucaso.js',
+      '/modules/mod_vinculacao_voucher.js',
+      '/modules/mod_detalhe_direto.js',
+      '/modules/mod_compra_segura.js',
+      '/modules/mod_reportes_fraude.js',
+      '/modules/mod_consulta_completa.js',
+      '/modules/mod_incoming_voucher.js',
+      '/modules/mod_sat_vrol.js',
+      '/modules/mod_siach_ocorrencias.js',
+    ];
+
+    (async function carregarDev() {
+      for (var i = 0; i < scripts.length; i++) {
+        await new Promise(function (resolve, reject) {
+          var s = document.createElement('script');
+          s.src = DEV_SERVER + scripts[i] + '?t=' + Date.now();
+          s.onload = resolve;
+          s.onerror = function () {
+            console.error('[Painel] Falha ao carregar: ' + scripts[i]);
+            resolve(); // continua mesmo com erro
+          };
+          document.head.appendChild(s);
+        });
+      }
+      // Inicializar após todos os scripts carregarem
+      if (window.__PAINEL_CORE__ &&
+          window.__PAINEL_CORE__.vrolBridge &&
+          window.__PAINEL_CORE__.vrolBridge.isVrolHost()) {
+        window.__PAINEL_CORE__.vrolBridge.instalarServidor();
+        console.log('[Painel] DEV MODE - Ponte VROL ativa.');
+      } else if (window.__PAINEL_CORE__ && window.__PAINEL_CORE__.ui) {
+        window.__PAINEL_CORE__.ui.injetarBotaoFlutuante();
+        console.log('[Painel] DEV MODE — Botão flutuante injetado.');
+      }
+    })();
+    return;
+  }
+
+  // ── Modo Produção: tudo está inline (injetado pelo build.js) ──
+  // BUILD_INJECT_START
+
+// ── core/utils.js ──
 /**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/utils.js
@@ -169,10 +255,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: core/network.js
-// ──────────────────────────────────────────────────────────
+// ── core/network.js ──
 /**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/network.js
@@ -394,10 +477,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: core/vrolBridge.js
-// ──────────────────────────────────────────────────────────
+// ── core/vrolBridge.js ──
 /**
  * PAINEL UNIFICADO - core/vrolBridge.js
  *
@@ -825,10 +905,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: core/persistence.js
-// ──────────────────────────────────────────────────────────
+// ── core/persistence.js ──
 /**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/persistence.js
@@ -933,10 +1010,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: core/dataIO.js
-// ──────────────────────────────────────────────────────────
+// ── core/dataIO.js ──
 /**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/dataIO.js
@@ -1184,10 +1258,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: core/ui.js
-// ──────────────────────────────────────────────────────────
+// ── core/ui.js ──
 /**
  * ═══════════════════════════════════════════════════════════
  *  PAINEL UNIFICADO — core/ui.js
@@ -1992,10 +2063,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_compra_segura.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_compra_segura.js ──
 /**
  * MÓDULO: Extrator Compra Segura (ServletAjax)
  * Extrai MODO_ENTRADA, MODO_SEGURANÇA e CODSOLINC
@@ -2135,13 +2203,10 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_consulta_completa.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_consulta_completa.js ──
 /**
- * MÓDULO: Consulta Completa de Expedientes (SAT Menu 0209)
- * Extrai TODOS os campos das páginas de busca e detalhe do SAT.
+ * MÓDULO: Consulta Completa de Expedientes (SAT Menu 0209) - Rotulada
+ * Extrai TODOS os campos das páginas de busca e detalhe do SAT com rótulos em Português.
  * Pipeline: passo1(navegar) → passo2(pesquisar) → passo2b(incidências) → passo3(detalhe).
  */
 (function (PAINEL) {
@@ -2154,27 +2219,207 @@ window.__PAINEL_VERSION__ = "1.0.11";
     DESCODENT: 'CAIXA ECONOMICA FEDERAL', MENU: '0209',
   };
 
-  var CAMPOS_DETALHE = [
-    'NUMREF', 'PANB', 'CLAMON', 'NOMCOMRED', 'CODACT',
-    'NUMAUT', 'FECFAC', 'CODRAZ', 'CODENT', 'CODREG',
-    'MODOOBTAUT', 'CODTERM', 'FECCIERRE', 'INDDEBCRE', 'INDPLAVEN',
-    'CODENTEMI', 'INDANUL', 'INDRET', 'FECCONTA', 'REFERMERCAN',
-    'CODPROECI', 'CODSOLCON', 'TIPOSOL', 'DESSOLINC', 'CODSUBFRA',
-    'NUMREFREM', 'CODRAZCHA', 'FECCONTASOL', 'CLAMONDIV', 'CODACTESP', 'TIPOFAC',
+  var DICIONARIO_MOTINC = {
+    '1': 'CARTAO NAO EXISTE',
+    '2': 'CARTAO BLOQUEADO',
+    '3': 'CARTAO EXCLUIDO',
+    '4': 'CARTAO NAO OPERATIVO',
+    '5': 'CARTAO NAO OPERATIVO CAIXAS',
+    '6': 'CARTAO NAO OPER.NAO ESTAMPADO',
+    '10': 'CONTA NAO OPERATIVA',
+    '40': 'CODIGO DE RAZAO ERRADO',
+    '50': 'CRUZADA MANUAL',
+    '51': 'NAO AUTORIZADA',
+    '52': 'AUT.OFF-LINE CONTABIL DENEGADA',
+    '53': 'OPERACAO RECHACADA SOL.REDE',
+    '54': 'TRANSACAO DUPLICADA',
+    '55': 'NAO AUTORIZADA PRIORIDADE 2',
+    '56': 'EXCEDE OVERLIMIT T&E',
+    '57': 'ERRO TIPO FATURA BNDES',
+    '58': 'AUTORIZACAO CONTESTADA',
+    '60': 'ENTIDADE N.ADMITE ESTA MOEDA',
+    '66': 'REJEITADO CONTA 110580',
+    '67': 'CBK REJEITADO ANTES MANTIS 832',
+    '70': 'OPERACAO FORA DE PRAZO',
+    '71': 'EXTRATO MIGRACAO',
+    '72': 'COMPRA PARCELADA MIGRACAO',
+    '73': 'PRE-ARBITRAGEM-VISA',
+    '75': 'CREDIARIO NAO PERMITIDO',
+    '78': 'INC.MIGRADA SEM SOLUCAO',
+    '79': 'INC.MIGRADA SOLUCAO',
+    '80': 'NAO EXISTE COMP PARC ASSOCIADA',
+    '81': 'VALOR DA PARCELA INCORRETO',
+    '82': 'PARCELA DUPLICADA',
+    '83': 'PARCELA VENCIDA',
+    '84': 'VALOR EXCEDE MAXIMO PERMITIDO',
+    '85': 'CHARGEBACK PORTAL SEM OCORRENC',
+    '86': 'INC. MIGRADA SOLUCIONADA',
+    '87': 'INC. MIGRADA SEM SOLUCAO',
+    '95': 'INC. MIGRADA SOLUCAO'
+  };
+
+  var DICIONARIO_TIPOINC = {
+    '1': 'ERRO DE INCOMING',
+    '2': 'SOLICITACAO DE DOCUMENTO',
+    '3': 'REVERSA SOLICITACAO DOCUMENTO',
+    '5': 'CHARGEBACK',
+    '6': 'REVERSA CHARGEBACK',
+    '7': 'SEGUNDO CHARGEBACK',
+    '8': 'REVERSAO SEGUNDO CHARGEBACK',
+    '10': 'INCIDENCIA EXTRATO EM ESTUDO',
+    '16': 'REAPRESENTACAO',
+    '30': 'REABERTURA E CREDITO EXP',
+    '35': 'REJEICAO DE CHARGEBACK',
+    '55': 'CHARGEBACK PORTAL ELO INTERNAC',
+    '56': 'CONF CHARGEBACK ELO PORTAL INT',
+    '57': 'CANC CHARGEBACK PORTAL ELO INT',
+    '58': 'CONF CANC CHRGBK PORT ELO INT',
+    '77': 'PRE ARBITRAGEM MASTER',
+    '80': 'SINISTRO',
+    '90': 'GESTAO MEDIACAO',
+    '95': 'AJUSTES REALIZADOS',
+    '99': 'INC. MIGRACAO SEM HISTORICO',
+    '100': 'INC. MIGRADA SEM SOLUCAO',
+    '101': 'INC. MIGRADA SOLUCIONADA',
+    '102': 'INC. MIGRADA SEM SOLUCAO'
+  };
+
+  var COLUNAS = [
+    // --- Página de Busca ---
+    { key: 'NUMEXP', header: 'Nº Processo' },
+    { key: 'NUMINC', header: 'Nº Ocorrência' },
+    { key: 'PAN', header: 'Nº Cartão' },
+    { key: 'PROTOCOLO', header: 'Protocolo' },
+    { key: 'TIPOEXP', header: 'Tipo Expediente' },
+    { key: 'DESTIPOEXP', header: 'Contabilização' },
+    { key: 'CODCOM', header: 'Código do Estabelecimento' },
+    { key: 'TIPFRAN', header: 'Cód. Bandeira' },
+    { key: 'DESFRARED', header: 'Bandeira' },
+    { key: 'FECALTA', header: 'Data Abertura' },
+    { key: 'INDSITEXP', header: 'Situação Expediente' },
+    { key: 'DESSITFRAUDE', header: 'Situação Reporte Fraude' },
+    { key: 'FECCIERRE', header: 'Data Finalização Processo' },
+    { key: 'INDPLAVEN', header: 'Prazo de Vencimento' },
+    { key: 'IMPFAC', header: 'Valor em R$' },
+    { key: 'VINCVOUCHER', header: 'Voucher Identificado' },
+    { key: 'NUCASO', header: 'Nº Caso' },
+
+    // --- Dados da Ocorrência (Incidência) ---
+    { key: 'TIPOINC', header: 'Cód. Tipo Ocorrência' },
+    { key: 'DESINC', header: 'Tipo Ocorrência' },
+    { key: 'MOTINC', header: 'Cód. Motivo' },
+    { key: 'DESMOTINC', header: 'Motivo Ocorrência' },
+
+    // --- Página de Detalhe ---
+    { key: 'NUMREF', header: 'ARN' },
+    { key: 'PANB', header: 'Cartão Formatado' },
+    { key: 'CLAMON', header: 'Cód. Moeda Convertida' },
+    { key: 'NOMCOMRED', header: 'Estabelecimento' },
+    { key: 'CODACT', header: 'Ramo Atividade (MCC)' },
+    { key: 'NUMAUT', header: 'Nº Autorização' },
+    { key: 'FECFAC', header: 'Data da Compra' },
+    { key: 'CODRAZ', header: 'Código Razão' },
+    { key: 'CODENT', header: 'Entidade' },
+    { key: 'CODREG', header: 'Região' },
+    { key: 'MODOOBTAUT', header: 'Transação Segura' },
+    { key: 'CODTERM', header: 'Cód. Terminal' },
+    { key: 'INDDEBCRE', header: 'Abonado Deb/Cred' },
+    { key: 'CODENTEMI', header: 'Entidade Emissora' },
+    { key: 'INDANUL', header: 'Ind. Anulação' },
+    { key: 'INDRET', header: 'Ind. Retenção' },
+    { key: 'FECCONTA', header: 'Data Contabilização' },
+    { key: 'REFERMERCAN', header: 'Referência Mercantil' },
+    { key: 'CODPROECI', header: 'Cód. Processo ECI' },
+    { key: 'CODSOLCON', header: 'Cód. Solução Confirmada' },
+    { key: 'TIPOSOL', header: 'Tipo Solução' },
+    { key: 'DESSOLINC', header: 'Descrição Solução' },
+    { key: 'FECSOLINC', header: 'Data Solução' },
+    { key: 'USUARIOSOL', header: 'Usuário Solução' },
+    { key: 'FECHORASOL', header: 'Data/Hora Solução' },
+    { key: 'CODSUBFRA', header: 'Submotivo Reporte Fraude' },
+    { key: 'NUMREFREM', header: 'Nº Remessa Ref.' },
+    { key: 'CODRAZCHA', header: 'Cód. Razão Chargeback' },
+    { key: 'FECCONTASOL', header: 'Data Contab. Solução' },
+    { key: 'CLAMONDIV', header: 'Moeda Original' },
+    { key: 'CODACTESP', header: 'Atividade Específica' },
+    { key: 'TIPOFAC', header: 'Cód. Tipo Fatura' },
+    { key: 'DESTIPFAC', header: 'Descrição Tipo Fatura' },
+    { key: 'SIAIDCD', header: 'Nº Switch Autorização' },
+    { key: 'CUENTA', header: 'Contrato' },
+    { key: 'CENTALTA', header: 'Agência' },
+    { key: 'CODESTCTA', header: 'Situação da Conta' },
+    { key: 'CODBLQCTA1', header: 'Último Bloqueio da Conta' },
+    { key: 'INDSITTAR', header: 'Situação do Cartão' },
+    { key: 'CODBLQ_PAN', header: 'Bloqueio do Cartão' },
+
+    // --- Status ---
+    { key: 'STATUS', header: 'Status Processamento' }
   ];
 
-  var CSV_COLS = [
-    'NUMEXP', 'PAN', 'PROTOCOLO', 'TIPOEXP', 'DESTIPOEXP',
-    'CODCOM', 'TIPFRAN', 'DESFRARED', 'FECALTA', 'INDSITEXP',
-    'IMPFAC', 'VINCVOUCHER', 'NUCASO',
-    'NUMREF', 'PANB', 'CLAMON', 'NOMCOMRED', 'CODACT',
-    'NUMAUT', 'FECFAC', 'CODRAZ', 'CODENT', 'CODREG',
-    'MODOOBTAUT', 'CODTERM', 'FECCIERRE', 'INDDEBCRE', 'INDPLAVEN',
-    'CODENTEMI', 'INDANUL', 'INDRET', 'FECCONTA', 'REFERMERCAN',
-    'CODPROECI', 'CODSOLCON', 'TIPOSOL', 'DESSOLINC', 'CODSUBFRA',
-    'NUMREFREM', 'CODRAZCHA', 'FECCONTASOL', 'CLAMONDIV', 'CODACTESP',
-    'TIPOFAC', 'DESTIPFAC', 'STATUS',
-  ];
+  var CSV_COLS = COLUNAS.map(function (c) { return c.header; });
+
+  function extrairCampoSingle(html, fieldName) {
+    if (!html) return '';
+    var r1 = new RegExp("name=['\"]" + fieldName + "['\"][^>]*value=['\"]([^'\"]*?)['\"]", 'i');
+    var m1 = html.match(r1);
+    if (m1 && m1[1] !== '') return m1[1];
+
+    var r2 = new RegExp("value=['\"]([^'\"]*?)['\"][^>]*name=['\"]" + fieldName + "['\"]", 'i');
+    var m2 = html.match(r2);
+    if (m2 && m2[1] !== '') return m2[1];
+
+    var r3 = new RegExp("id=['\"]" + fieldName + "['\"][^>]*value=['\"]([^'\"]*?)['\"]", 'i');
+    var m3 = html.match(r3);
+    if (m3 && m3[1] !== '') return m3[1];
+
+    var r4 = new RegExp("value=['\"]([^'\"]*?)['\"][^>]*id=['\"]" + fieldName + "['\"]", 'i');
+    var m4 = html.match(r4);
+    return (m4 && m4[1] !== '') ? m4[1] : '';
+  }
+
+  function extrairCampoMelhorado(campo, htmlDetalhe, dbBusca) {
+    // 1. Se veio do Javascript da busca (FECCIERRE, DESSITFRAUDE, INDPLAVEN)
+    if (dbBusca && dbBusca[campo] !== undefined && dbBusca[campo] !== '') {
+      return dbBusca[campo];
+    }
+
+    // 2. Extrair do HTML do detalhe
+    var val = extrairCampoSingle(htmlDetalhe, campo);
+    if (val !== '') return val;
+
+    // 3. Fallbacks e resoluções específicas
+    if (campo === 'CODSOLCON') {
+      return extrairCampoSingle(htmlDetalhe, 'CODSOLINC') || extrairCampoSingle(htmlDetalhe, 'CODSOLINCAUX');
+    }
+
+    if (campo === 'CLAMONDIV') {
+      var clamon = extrairCampoSingle(htmlDetalhe, 'CLAMON');
+      if (clamon) {
+        var rOpt = new RegExp("<option[^>]*(?:value|data-CLAMON)=['\"]?" + clamon + "['\"]?[^>]*>", 'i');
+        var mOpt = htmlDetalhe.match(rOpt);
+        if (mOpt) {
+          var mDes = mOpt[0].match(/data-DESCLAMONLARGA=['\"]([^'\"]+)['\"]/i);
+          if (mDes) return mDes[1];
+          var mTitle = mOpt[0].match(/title=['\"]([^'\"]+)['\"]/i);
+          if (mTitle && mTitle[1].indexOf(' - ') !== -1) {
+            return mTitle[1].split(' - ')[1].trim();
+          }
+        }
+        if (clamon === '986') return 'REAL';
+        if (clamon === '840') return 'DOLAR';
+      }
+    }
+
+    if (campo === 'CODSUBFRA') {
+      var mCod = htmlDetalhe.match(/var\s+codSubFrau\s*=\s*['\"]([^'\"]*)['\"]/i);
+      var mDes = htmlDetalhe.match(/var\s+desSubFrau\s*=\s*['\"]([^'\"]*)['\"]/i);
+      var cSub = mCod ? mCod[1].trim() : '';
+      var dSub = mDes ? mDes[1].trim() : '';
+      if (cSub || dSub) return (cSub + '/' + dSub).replace(/^\/|\/$/g, '');
+    }
+
+    return '';
+  }
 
   async function passo1(network) {
     var w = network.getSessionId() + 'Interface';
@@ -2189,19 +2434,73 @@ window.__PAINEL_VERSION__ = "1.0.11";
   }
 
   async function passo2(numExp, network) {
-    var w = network.getSessionId() + 'Interface';
+    var sIdWindow = network.getSessionId() + 'Interface';
     return await network.post(CONFIG.SERVLET_DIRECTOR, [
-      { name: 'TKCSRF', value: '' }, { name: 'CODENT', value: CONFIG.CODENT },
+      { name: 'TKCSRF', value: '' }, { name: 'IPROTOCOLO', value: '' }, { name: 'FECSOLINC', value: '' },
+      { name: 'DESFRARED', value: '' }, { name: 'MAS_DATOS', value: '' }, { name: 'CONTCUR', value: '' },
+      { name: 'SELECCION', value: '' }, { name: 'LISTA', value: '' }, { name: 'CODENT', value: CONFIG.CODENT },
       { name: 'bOcultarBtn', value: 'S' }, { name: 'bIncidencia', value: 'N' },
-      { name: 'NUMEXPFILTRO', value: numExp }, { name: 'FILTREPOREXPEDIENTE', value: 'S' },
-      { name: 'VENGOBUS', value: 'Y' }, { name: 'PANTJERARQUICA', value: 'Y' },
-      { name: 'PageBusquedaExpedientes', value: 'Y' },
-      { name: 'radioTipoFiltro', value: 'Expedientes' }, { name: 'RadioFiltro', value: 'on' },
-      { name: 'NUMEXP', value: numExp }, { name: 'CODPAIS2', value: CONFIG.CODPAIS },
+      { name: 'FECALTA', value: '' }, { name: 'FECCIERRE', value: '' }, { name: 'INDPLAVEN', value: '' },
+      { name: 'TIPOFAC', value: '' }, { name: 'INDNORCOR', value: '' }, { name: 'DESTIPFRAN', value: '' },
+      { name: 'FECFAC', value: '' }, { name: 'IMPFAC', value: '' }, { name: 'FECALTAINC', value: '' },
+      { name: 'NUMREF', value: '' }, { name: 'DESINC', value: '' }, { name: 'INDINCPEN', value: '' },
+      { name: 'CODREG', value: '' }, { name: 'NUMREFREM', value: '' }, { name: 'NUMREFFACREM', value: '' },
+      { name: 'INDAJENA', value: '' }, { name: 'NUMAUT', value: '' }, { name: 'CODACT', value: '' },
+      { name: 'INDDEBCRE', value: '' }, { name: 'FECCMB', value: '' }, { name: 'CMBAPLI', value: '' },
+      { name: 'IMPLIQ', value: '' }, { name: 'INDERROR', value: '' }, { name: 'CODRAZ', value: '' },
+      { name: 'CODSOLINCAUX', value: '' }, { name: 'TIPOSOL', value: '' }, { name: 'FECLIQ', value: '' },
+      { name: 'CODFUNFRAN', value: '' }, { name: 'CODACTESP', value: '' }, { name: 'MODOOBTAUT', value: '' },
+      { name: 'TEXTOINICIO', value: '' }, { name: 'INDAPLEXT', value: '' }, { name: 'INDANUL', value: '' },
+      { name: 'INDRET', value: '' }, { name: 'FECCONTA', value: '' }, { name: 'FECCONTASOL', value: '' },
+      { name: 'CLAMON', value: '' }, { name: 'CLAMONDIV', value: '' }, { name: 'FECPROCIN', value: '' },
+      { name: 'CODSUBFRA', value: '' }, { name: 'CODPAIS2', value: CONFIG.CODPAIS },
+      { name: 'CODRAZCHA', value: '' }, { name: 'INDCOMINC', value: '' }, { name: 'INDCOMPCUO', value: '' },
+      { name: 'SIAIDCD', value: '' }, { name: 'NUMOPECUO', value: '' }, { name: 'CODTERM', value: '' },
+      { name: 'IMPBONIF', value: '' }, { name: 'DEPARTAMENTO', value: '' }, { name: 'REFERMERCAN', value: '' },
+      { name: 'CODPROECI', value: '' }, { name: 'NUMTALON', value: '' }, { name: 'CODENTEMI', value: '' },
+      { name: 'TIPOFACEMI', value: '' }, { name: 'CODENTUMO', value: '' }, { name: 'CODOFIUMO', value: '' },
+      { name: 'USUARIOUMO', value: '' }, { name: 'CODTERMUMO', value: '' },
+      { name: 'TEXTO1', value: '' }, { name: 'TEXTO2', value: '' }, { name: 'TEXTO3', value: '' },
+      { name: 'TEXTO4', value: '' }, { name: 'TEXTO5', value: '' }, { name: 'TEXTO6', value: '' },
+      { name: 'TEXTO7', value: '' }, { name: 'TEXTO8', value: '' },
+      { name: 'DESSOLINC', value: '' }, { name: 'DESTIPOSOL', value: '' }, { name: 'INDSITEXP', value: '' },
+      { name: 'PROTOCOLO', value: '' }, { name: 'TIPOEXP', value: '' }, { name: 'TIPOLISTADO', value: '' },
+      { name: 'INDBOLET', value: '' }, { name: 'SALIDARED', value: '' }, { name: 'CODSOLCON', value: '' },
+      { name: 'IMPMIN', value: '' }, { name: 'CLAMONMIN', value: '' }, { name: 'SWITCHCENTRO', value: '' },
+      { name: 'CONUMINC', value: '' }, { name: 'VENGOBUS', value: 'Y' }, { name: 'PANTJERARQUICA', value: 'Y' },
+      { name: 'NUMINCSELECT', value: '' }, { name: 'CONSUL', value: '' }, { name: 'INDORIINC', value: '' },
+      { name: 'PANFILTRO', value: '' }, { name: 'TIPFRANFILTRO', value: '' }, { name: 'EMPRESAFILTRO', value: '' },
+      { name: 'INDSITEXPFILTRO', value: '' }, { name: 'TIPOINCFILTRO', value: '' },
+      { name: 'TIPOEXPFILTRO', value: '' }, { name: 'INDINCPENFILTRO', value: '' },
+      { name: 'FECINIFILTRO', value: '' }, { name: 'FECFINFILTRO', value: '' },
+      { name: 'NUMEXPFILTRO', value: numExp }, { name: 'PROTOCOLOFILTRO', value: '' },
+      { name: 'CODCOMFILTRO', value: '' }, { name: 'INDORIINCFILTRO', value: '' },
+      { name: 'MOTINCFILTRO', value: '' }, { name: 'FILTREPOREXPEDIENTE', value: 'S' },
+      { name: 'FILTREPORINCIDENCIA', value: '' }, { name: 'IMPLIQ', value: '' },
+      { name: 'CLAMONLIQ', value: '' }, { name: 'BusquedaUnitaria', value: '' },
+      { name: 'TipoFiltro', value: '' }, { name: 'VCRFORM', value: '' }, { name: 'VcrReturnCode', value: '' },
+      { name: 'NUMPAN', value: '' }, { name: 'CODSOLINCFILTRO', value: '' },
+      { name: 'PageOperCuotas', value: '' }, { name: 'PageMovimentoCredito', value: '' },
+      { name: 'PageConsultaContratos', value: '' }, { name: 'PageConsultaAutorizaciones', value: '' },
+      { name: 'TIPFRANAUX', value: '' }, { name: 'CUENTA', value: '' }, { name: 'NUMDOC', value: '' },
+      { name: 'CENTALTA', value: '' }, { name: 'INDINCCONTINA', value: '' },
+      { name: 'CHPRASFILTRO', value: '' }, { name: 'NUMCASOFILTRO', value: '' },
+      { name: 'SECOPEFRAUDEAUX', value: '' }, { name: 'PANFRAUDEAUX', value: '' },
+      { name: 'PageBusquedaExpedientes', value: 'Y' }, { name: 'PageConsultaContratosInativos', value: '' },
+      { name: 'INDFRAUDEENV', value: '' }, { name: 'NUMPARCELA', value: '' },
+      { name: 'radioTipoFiltro', value: 'Expedientes' }, { name: 'NUMINC', value: '' },
+      { name: 'RadioFiltro', value: 'on' }, { name: 'NUMEXP', value: numExp },
+      { name: 'CHPRAS', value: '' }, { name: 'PAN', value: '' }, { name: 'NPROTOCOLO', value: '' },
+      { name: 'NUCASO', value: '' }, { name: 'TIPFRAN', value: '' }, { name: 'TIPOINC', value: '' },
+      { name: 'FECINI', value: '' }, { name: 'FECFIN', value: '' }, { name: 'MOTINC', value: '' },
+      { name: 'CODCOM', value: '' }, { name: 'NOMCOMRED', value: '' },
+      { name: 'TIPOEXP1', value: '' }, { name: 'TIPOEXP2', value: '' },
+      { name: 'TIPOLISTADO1', value: '' }, { name: 'TIPOLISTADO2', value: '' },
       { name: 'TIPOPROTOCOLO', value: 'N' }, { name: 'MIGRACION', value: 'N' },
+      { name: 'CODSOLINC', value: '' },
       { name: 'sNombreMenuAnt', value: CONFIG.MENU }, { name: 'sNombreMenuAct', value: CONFIG.MENU },
       { name: 'sNombreEvento', value: 'buscarGnral' },
-      { name: 'sIdWindow', value: w }, { name: 'sIdWindowPadre', value: 'FrameProducto' },
+      { name: 'sIdWindow', value: sIdWindow }, { name: 'sIdWindowPadre', value: 'FrameProducto' },
       { name: 'BusquedaExpedientes', value: 'true' },
     ]);
   }
@@ -2209,43 +2508,87 @@ window.__PAINEL_VERSION__ = "1.0.11";
   async function passo2b(numExp, dadosBusca, network) {
     try {
       var htmlInc = await network.post(CONFIG.SERVLET_AJAX, {
-        REQUEST_TYPE: 'AJAX', CODENT: CONFIG.CODENT, CODPAIS2: CONFIG.CODPAIS,
-        bOcultarBtn: 'S', bIncidencia: 'N', VENGOBUS: 'Y', PANTJERARQUICA: 'Y',
-        NUMEXPFILTRO: numExp, FILTREPOREXPEDIENTE: 'S', PageBusquedaExpedientes: 'Y',
-        radioTipoFiltro: 'Expedientes', RadioFiltro: 'on', NUMEXP: numExp,
+        REQUEST_TYPE: 'AJAX',
+        CODENT: CONFIG.CODENT,
+        CODPAIS2: CONFIG.CODPAIS,
+        bOcultarBtn: 'S',
+        bIncidencia: 'N',
+        VENGOBUS: 'Y',
+        PANTJERARQUICA: 'Y',
+        NUMEXPFILTRO: numExp,
+        FILTREPOREXPEDIENTE: 'S',
+        PageBusquedaExpedientes: 'Y',
+        radioTipoFiltro: 'Expedientes',
+        RadioFiltro: 'on',
+        NUMEXP: numExp,
         PAN: (dadosBusca && dadosBusca.PAN) || '',
         TIPFRAN: (dadosBusca && dadosBusca.TIPFRAN) || '',
         CODCOM: (dadosBusca && dadosBusca.CODCOM) || '',
         FECALTA: (dadosBusca && dadosBusca.FECALTA) || '',
         INDSITEXP: (dadosBusca && dadosBusca.INDSITEXP) || '',
-        Peticion: 'ListadoEXP', sClave: numExp, MOTIPOEXP: 'F',
+        TIPOEXP: (dadosBusca && dadosBusca.TIPOEXP) || '',
+        DESFRARED: (dadosBusca && dadosBusca.DESFRARED) || '',
+        Peticion: 'ListadoEXP',
+        sClave: numExp,
+        MOTIPOEXP: 'F',
       });
-      var reInci = /ConsultaInci\(getFormulario\(this\),((?:'[^']*',?\s*)+)\)/;
-      var m = htmlInc.match(reInci);
-      if (m) {
-        var args = [], ra = /'([^']*)'/g, am;
-        while ((am = ra.exec(m[1])) !== null) args.push(am[1]);
-        return args[2] || '';
+      var reInci = /ConsultaInci\(getFormulario\(this\),((?:'[^']*',?\s*)+)\)/g;
+      var matchInci;
+      var listaIncidencias = [];
+      while ((matchInci = reInci.exec(htmlInc)) !== null) {
+        var argsInci = [];
+        var reArgInci = /'([^']*)'/g;
+        var amInci;
+        while ((amInci = reArgInci.exec(matchInci[1])) !== null) argsInci.push(amInci[1]);
+        var motCod = (argsInci[9] || '').trim();
+        var tipoCod = (argsInci[7] || '').trim();
+        var desInc = (argsInci[8] || '').trim() || DICIONARIO_TIPOINC[tipoCod] || '';
+        var desMot = DICIONARIO_MOTINC[motCod] || '';
+        listaIncidencias.push({
+          NUMINC: (argsInci[0] || '').trim(),
+          TIPOFAC: argsInci[1] || '',
+          DESTIPFAC: argsInci[2] || '',
+          TIPOINC: tipoCod,
+          DESINC: desInc,
+          MOTINC: motCod,
+          DESMOTINC: desMot,
+        });
       }
-    } catch (e) { }
-    return '';
+
+      if (listaIncidencias.length === 0) return {};
+
+      // Se houver mais de uma ocorrência, pegar o primeiro registro onde o número da ocorrência é diferente do número do processo
+      if (listaIncidencias.length > 1) {
+        var expStr = String(numExp).trim();
+        var diferente = listaIncidencias.find(function (item) {
+          return item.NUMINC && item.NUMINC !== expStr;
+        });
+        if (diferente) return diferente;
+      }
+
+      return listaIncidencias[0];
+    } catch (e) {
+      return {};
+    }
   }
 
   async function passo3(numExp, dadosBusca, network) {
-    var w = network.getSessionId() + 'Interface';
+    var sIdWindow = network.getSessionId() + 'Interface';
+    var numInc = (dadosBusca && dadosBusca.NUMINC) ? dadosBusca.NUMINC : numExp;
     return await network.post(CONFIG.SERVLET_DIRECTOR, [
-      { name: 'TKCSRF', value: '' }, { name: 'CODENT', value: CONFIG.CODENT },
-      { name: 'bOcultarBtn', value: 'S' }, { name: 'bIncidencia', value: 'N' },
-      { name: 'CODPAIS2', value: CONFIG.CODPAIS }, { name: 'VENGOBUS', value: 'Y' },
-      { name: 'PANTJERARQUICA', value: 'Y' }, { name: 'NUMEXPFILTRO', value: numExp },
-      { name: 'FILTREPOREXPEDIENTE', value: 'S' }, { name: 'PageBusquedaExpedientes', value: 'Y' },
-      { name: 'NUMINC', value: numExp },
+      { name: 'TKCSRF', value: '' }, { name: 'IPROTOCOLO', value: '' },
+      { name: 'CODENT', value: CONFIG.CODENT }, { name: 'bOcultarBtn', value: 'S' },
+      { name: 'bIncidencia', value: 'N' }, { name: 'CODPAIS2', value: CONFIG.CODPAIS },
+      { name: 'VENGOBUS', value: 'Y' }, { name: 'PANTJERARQUICA', value: 'Y' },
+      { name: 'NUMEXPFILTRO', value: numExp }, { name: 'FILTREPOREXPEDIENTE', value: 'S' },
+      { name: 'PageBusquedaExpedientes', value: 'Y' },
+      { name: 'NUMINC', value: numInc },
       { name: 'NUMEXP', value: (dadosBusca && dadosBusca.CODCOM) || '' },
       { name: 'PAN', value: (dadosBusca && dadosBusca.PAN) || '' },
       { name: 'TIPFRAN', value: (dadosBusca && dadosBusca.TIPFRAN) || '' },
       { name: 'sNombreMenuAnt', value: CONFIG.MENU }, { name: 'sNombreMenuAct', value: CONFIG.MENU },
       { name: 'sNombreEvento', value: 'selectIncidenciasB' },
-      { name: 'sIdWindow', value: w }, { name: 'sIdWindowPadre', value: 'FrameProducto' },
+      { name: 'sIdWindow', value: sIdWindow }, { name: 'sIdWindowPadre', value: 'FrameProducto' },
       { name: 'BusquedaExpedientes', value: 'true' },
     ]);
   }
@@ -2257,15 +2600,27 @@ window.__PAINEL_VERSION__ = "1.0.11";
     while ((match = re.exec(html)) !== null) {
       var args = [], ra = /'([^']*)'/g, am;
       while ((am = ra.exec(match[1])) !== null) args.push(am[1]);
+      if (args.length < 20) continue;
       var chave = args[2] + '|' + args[3];
       if (vistos[chave]) continue;
       vistos[chave] = true;
       resultados.push({
-        NUMEXP: args[2] || '', PAN: args[3] || '', PROTOCOLO: args[4] || '',
-        TIPOEXP: args[5] || '', DESTIPOEXP: args[6] || '', CODCOM: args[7] || '',
-        TIPFRAN: args[8] || '', DESFRARED: args[9] || '', FECALTA: args[10] || '',
-        INDSITEXP: args[11] || '', IMPFAC: args[18] || '',
-        VINCVOUCHER: args[19] || '', NUCASO: args[20] || '',
+        NUMEXP: args[2] || '',
+        PAN: args[3] || '',
+        PROTOCOLO: args[4] || '',
+        TIPOEXP: args[5] || '',
+        DESTIPOEXP: args[6] || '',
+        CODCOM: args[7] || '',
+        TIPFRAN: args[8] || '',
+        DESFRARED: args[9] || '',
+        FECALTA: args[10] || '',
+        INDSITEXP: args[11] || '',
+        DESSITFRAUDE: args[12] || '',
+        FECCIERRE: args[13] || '',
+        INDPLAVEN: args[15] || '',
+        IMPFAC: args[18] || '',
+        VINCVOUCHER: args[19] || '',
+        NUCASO: args[20] || '',
       });
     }
     return resultados;
@@ -2276,10 +2631,10 @@ window.__PAINEL_VERSION__ = "1.0.11";
     nome: 'Extrator de Informações de Ocorrências',
     icone: '📊',
     cor: 'linear-gradient(90deg,#3498db,#2ecc71)',
-    descricao: 'Extrai TODOS os campos de busca + detalhe por NUMEXP',
+    descricao: 'Extrai TODOS os campos de busca + detalhe por NUMEXP (com rótulos em português)',
     sistema: 'SAT',
-    storageKey: '_sat_completa_v1',
-    intervaloMS: 200,
+    storageKey: '_sat_completa_rotulada_v1',
+    intervaloMS: 50,
     csvCols: CSV_COLS,
     exportFormat: 'csv',
     inputConfig: {
@@ -2291,46 +2646,75 @@ window.__PAINEL_VERSION__ = "1.0.11";
     },
     keepaliveConfig: { url: CONFIG.SERVLET_AJAX, body: 'REQUEST_TYPE=AJAX&Peticion=VALIDATRANSMTO' },
     processarUm: async function (numExp, core) {
-      var reg = { STATUS: 'OK' };
-      CSV_COLS.forEach(function (c) { if (!reg[c]) reg[c] = ''; });
-      reg.NUMEXP = numExp;
+      var reg = {};
+      COLUNAS.forEach(function (c) { reg[c.header] = ''; });
+      reg['Status Processamento'] = 'OK';
+      reg['Nº Processo'] = numExp;
+      reg.STATUS = 'OK';
 
-      await passo1(core.network);
-      await core.utils.esperar(400);
+      try {
+        // === PASSO 1 - Navegar ===
+        await passo1(core.network);
+        await core.utils.esperar(300);
 
-      var htmlBusca = await passo2(numExp, core.network);
-      var dados = extrairDadosBusca(htmlBusca);
-      if (dados.length === 0) { reg.STATUS = 'OCORRENCIA NAO ENCONTRADA'; return reg; }
+        // === PASSO 2 - Pesquisar ===
+        var htmlBusca = await passo2(numExp, core.network);
+        var dadosBusca = extrairDadosBusca(htmlBusca);
+        var db = (dadosBusca && dadosBusca.length > 0) ? dadosBusca[0] : null;
 
-      var db = dados[0];
-      ['NUMEXP','PAN','PROTOCOLO','TIPOEXP','DESTIPOEXP','CODCOM','TIPFRAN',
-       'DESFRARED','FECALTA','INDSITEXP','IMPFAC','VINCVOUCHER','NUCASO'
-      ].forEach(function (k) { reg[k] = db[k] || ''; });
+        if (!db) {
+          reg['Status Processamento'] = 'OCORRENCIA NAO ENCONTRADA';
+          reg.STATUS = 'OCORRENCIA NAO ENCONTRADA';
+          return reg;
+        }
 
-      reg.DESTIPFAC = await passo2b(numExp, db, core.network);
-      await core.utils.esperar(400);
+        // Dados da incidência vêm do AJAX
+        var inc = await passo2b(numExp, db, core.network);
+        db.NUMINC = inc.NUMINC || '';
+        db.DESTIPFAC = inc.DESTIPFAC || '';
+        db.TIPOINC = inc.TIPOINC || '';
+        db.DESINC = inc.DESINC || '';
+        db.MOTINC = inc.MOTINC || '';
+        db.DESMOTINC = inc.DESMOTINC || '';
+        await core.utils.esperar(300);
 
-      var htmlDetalhe = await passo3(numExp, db, core.network);
-      CAMPOS_DETALHE.forEach(function (campo) {
-        reg[campo] = core.utils.extrairCampoHTML(htmlDetalhe, campo);
-      });
+        // === PASSO 3 - Selecionar e extrair detalhe ===
+        var htmlDetalhe = await passo3(numExp, db, core.network);
 
+        // Mapear todas as colunas
+        COLUNAS.forEach(function (c) {
+          if (c.key === 'STATUS') return;
+          reg[c.header] = extrairCampoMelhorado(c.key, htmlDetalhe, db);
+        });
+
+      } catch (e) {
+        if (e.message === 'SESSAO_EXPIRADA') throw e;
+        reg['Status Processamento'] = 'ERRO: ' + e.message;
+        reg.STATUS = 'ERRO: ' + e.message;
+      }
       return reg;
     },
     logItem: function (prefixo, item, regs, addLog) {
       var r = regs[0];
-      if (r.STATUS === 'OK') addLog(prefixo + ' OK | ' + item + ' | PAN=' + (r.PAN||'-').slice(-4));
-      else addLog(prefixo + ' ' + r.STATUS + ' | ' + item);
+      if (r && r['Status Processamento'] === 'OK') {
+        addLog(prefixo + ' OK | ' + item +
+          ' | Cartao:' + (r['Nº Cartão'] || '-') +
+          ' | ARN:' + (r['ARN'] || '-') +
+          ' | Sit:' + (r['Situação Expediente'] || '-') +
+          ' | Solucao:' + (r['Data Solução'] || '-') +
+          ' | Fin:' + (r['Data Finalização Processo'] || '-'));
+      } else if (r) {
+        addLog(prefixo + ' ' + (r['Status Processamento'] || r.STATUS || 'ERRO') + ' | ' + item);
+      } else {
+        addLog(prefixo + ' ERRO | ' + item);
+      }
     },
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_consulta_redes.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_consulta_redes.js ──
 /**
  * ═══════════════════════════════════════════════════════════
  *  MÓDULO: Consulta Redes (SAT Menu 0311)
@@ -2553,10 +2937,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_detalhe_direto.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_detalhe_direto.js ──
 /**
  * MÓDULO: SAT Detalhe Direto (ServletAjax)
  * Extrai CODSOLINC, INDSITEXP, MODO_ENTRADA, MODO_SEGURANÇA
@@ -2704,10 +3085,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_incoming_voucher.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_incoming_voucher.js ──
 /**
  * MÓDULO: Mensagem Incoming Voucher por ARN (SAT Menu 0311→0884)
  * Pipeline: buscarGnral → encontrarLinha001/SIM → detalhe → voucher → extrairDados.
@@ -2719,7 +3097,8 @@ window.__PAINEL_VERSION__ = "1.0.11";
   var CONFIG = {
     SERVLET_DIRECTOR: '/sat/servlet/ServletDirector',
     SERVLET_AJAX: '/sat/servlet/ServletAjax',
-    CODENT: '0104', MENU: '0311',
+    CODENT: '0104',
+    MENU: '0311',
   };
 
   var CSV_COLS = [
@@ -2727,63 +3106,91 @@ window.__PAINEL_VERSION__ = "1.0.11";
     'VALOR_VOUCHER_RAW', 'VALOR_VOUCHER_NORMALIZADO', 'STATUS',
   ];
 
+  /**
+   * Normaliza o valor numérico do Campo 11 / Dest. Amount / DE4.
+   * Insere vírgula antes dos 2 últimos dígitos e remove zeros à esquerda.
+   *
+   * Exemplos:
+   *   "000000027480" → "274,80"
+   *   "000000000550" → "5,50"
+   *   "000000100000" → "1000,00"
+   */
   function normalizarValor(raw) {
     if (!raw || raw.trim() === '') return '';
     var limpo = raw.replace(/\D/g, '');
     if (limpo.length < 3) return limpo;
-    var inteiro = limpo.slice(0, -2).replace(/^0+/, '') || '0';
-    return inteiro + ',' + limpo.slice(-2);
+    var inteiro = limpo.slice(0, -2);
+    var decimal = limpo.slice(-2);
+    inteiro = inteiro.replace(/^0+/, '') || '0';
+    return inteiro + ',' + decimal;
   }
 
   // ── Passo 1: Buscar ARN no 0311 ──
   async function buscarPorARN(arn, tipoRede, network) {
-    var w = network.getSessionId() + 'Interface';
-    return await network.post(CONFIG.SERVLET_DIRECTOR, {
+    var sIdWindow = network.getSessionId() + 'Interface';
+    var params = {
       TKCSRF: '', IPROTOCOLO: '', INDEJECUCION: '',
       CODENT: CONFIG.CODENT, bOcultarBtn: 'S',
       CODCOM: '', SECOPE: '', NUMREF: '', PAN: '', FECOPER: '',
-      TIPFRANFILTRO: tipoRede, NUMREFBFILTRO: arn,
+      TIPFRANFILTRO: tipoRede, SECOPEBFILTRO: '', PANBFILTRO: '',
+      NUMREFBFILTRO: arn, TIPOFACFILTRO: '', TIPOINCFILTRO: '',
+      FECOPERIFILTRO: '', FECOPERFFILTRO: '',
+      FECALTAIFILTRO: '', FECALTAFFILTRO: '',
       FRANQUICIA: '', TIPFRAN: tipoRede,
       SECOPEB: '', filtros: '2', PANB: '', NUMREFB: arn,
+      TIPOFAC: '', TIPOINC: '', FECOPERI: '', FECOPERF: '',
+      FECALTAI: '', FECALTAF: '',
       sNombreMenuAnt: CONFIG.MENU, sNombreMenuAct: CONFIG.MENU,
       sNombreEvento: 'buscarGnral',
-      sIdWindow: w, sIdWindowPadre: 'FrameProducto',
+      sIdWindow: sIdWindow, sIdWindowPadre: 'FrameProducto',
       selFranquicias: 'true',
-    });
+    };
+    return await network.post(CONFIG.SERVLET_DIRECTOR, params);
   }
 
   // ── Passo 2: Encontrar linha 001/SIM ──
   function encontrarLinhaVoucher(html) {
-    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
     var tabela = doc.querySelector('table[id^="Listado_"]');
     if (!tabela) return null;
+
     var linhas = tabela.querySelectorAll('tr');
     for (var i = 1; i < linhas.length; i++) {
       var link = linhas[i].querySelector('a[onclick]');
       if (!link) continue;
+
       var onclick = link.getAttribute('onclick');
       if (!onclick || onclick.indexOf('Consulta1') === -1) continue;
+
       var matchArgs = onclick.match(/Consulta1\([^,]+,(.+?)\);event/);
       if (!matchArgs) continue;
-      var argsStr = matchArgs[1], args = [], atual = '', dentroAspas = false;
+
+      var argsStr = matchArgs[1];
+      var args = [];
+      var atual = '';
+      var dentroAspas = false;
       for (var c = 0; c < argsStr.length; c++) {
         var ch = argsStr[c];
-        if (ch === "'" && !dentroAspas) dentroAspas = true;
-        else if (ch === "'" && dentroAspas) dentroAspas = false;
+        if (ch === "'" && !dentroAspas) { dentroAspas = true; }
+        else if (ch === "'" && dentroAspas) { dentroAspas = false; }
         else if (ch === ',' && !dentroAspas) { args.push(atual); atual = ''; }
-        else atual += ch;
+        else { atual += ch; }
       }
       args.push(atual);
+
       var vincvoucher = (args[10] || '').trim().toUpperCase();
       var numTotParc = (args[11] || '').trim();
+
       if (numTotParc.indexOf('001') === 0 && vincvoucher === 'SIM') {
         return {
-          secope: args[0]||'', pan: args[1]||'', fecoper: args[2]||'',
-          codaut: args[3]||'', nomcom: args[4]||'', tipofac: args[5]||'',
-          tipoinc: args[6]||'', numref: args[7]||'', impoper: args[8]||'',
-          desclamon: args[9]||'', contcur: args[17]||'',
-          codcom: args[12]||'', fecalta: args[13]||'',
-          seclote: args[14]||'', tiddet: args[15]||'', clamon: args[16]||'',
+          secope: args[0] || '', pan: args[1] || '', fecoper: args[2] || '',
+          codaut: args[3] || '', nomcom: args[4] || '', tipofac: args[5] || '',
+          tipoinc: args[6] || '', numref: args[7] || '', impoper: args[8] || '',
+          desclamon: args[9] || '', vincvoucher: vincvoucher,
+          numTotParc: numTotParc, codcom: args[12] || '', fecalta: args[13] || '',
+          seclote: args[14] || '', tiddet: args[15] || '', clamon: args[16] || '',
+          contcur: args[17] || ''
         };
       }
     }
@@ -2792,86 +3199,179 @@ window.__PAINEL_VERSION__ = "1.0.11";
 
   // ── Passo 3: Navegar para detalhe ──
   async function navegarDetalhe(arn, tipoRede, args, network) {
-    var w = network.getSessionId() + 'Interface';
-    return await network.post(CONFIG.SERVLET_DIRECTOR, {
+    var sIdWindow = network.getSessionId() + 'Interface';
+    var params = {
       TKCSRF: '', IPROTOCOLO: '', INDEJECUCION: '',
       CODENT: CONFIG.CODENT, bOcultarBtn: 'S',
       CODCOM: args.codcom, SECOPE: args.secope, NUMREF: args.numref,
       PAN: args.pan, FECOPER: args.fecoper,
-      TIPFRANFILTRO: tipoRede, NUMREFBFILTRO: arn,
-      FRANQUICIA: '', TIPFRAN: tipoRede, filtros: '1',
+      TIPFRANFILTRO: tipoRede, SECOPEBFILTRO: '', PANBFILTRO: '',
+      NUMREFBFILTRO: arn, TIPOFACFILTRO: '', TIPOINCFILTRO: '',
+      FECOPERIFILTRO: '', FECOPERFFILTRO: '',
+      FECALTAIFILTRO: '', FECALTAFFILTRO: '',
+      FRANQUICIA: '', TIPFRAN: tipoRede,
+      filtros: '1',
       SECOPEB: '', PANB: '', NUMREFB: arn,
-      TIPOINC: args.tipoinc, TIPOFAC: args.tipofac, DESINC: args.tipoinc,
+      TIPOINC: args.tipoinc, FECOPERI: '', FECOPERF: '',
+      FECALTAI: '', FECALTAF: '',
+      TIPOFAC: args.tipofac, DESINC: args.tipoinc,
       SECLOTE: args.seclote, TIDDET: args.tiddet,
       IMPOPER: args.impoper, CLAMON: args.clamon,
       DESCLAMON: args.desclamon, CONTCUR: args.contcur,
+      sDireccionFRCLOL1: '',
+      CLAVEINICIOFRCLOL1: '', CLAVEFINFRCLOL1: '',
       PANTPAGFRCLOL1: '001', INDMASDATOSFRCLOL1: 'N',
       sNombreMenuAnt: CONFIG.MENU, sNombreMenuAct: CONFIG.MENU,
       sNombreEvento: 'selectConsultaFranquiciasLista1',
-      sIdWindow: w, sIdWindowPadre: 'FrameProducto', selFranquicias: 'true',
-    });
+      sIdWindow: sIdWindow, sIdWindowPadre: 'FrameProducto',
+      selFranquicias: 'true',
+    };
+    return await network.post(CONFIG.SERVLET_DIRECTOR, params);
   }
 
   // ── Passo 4: Navegar para Mensagem Incoming Voucher (0884) ──
   async function navegarVoucher(detalheHtml, args, arn, tipoRede, network) {
-    var w = network.getSessionId() + 'Interface';
-    var doc = new DOMParser().parseFromString(detalheHtml, 'text/html');
+    var sIdWindow = network.getSessionId() + 'Interface';
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(detalheHtml, 'text/html');
     var form = doc.querySelector('form[name="FormSAT"], form#FormSAT');
+
     var params = {};
     if (form) {
       var inputs = form.querySelectorAll('input[name], select[name]');
       for (var i = 0; i < inputs.length; i++) {
         var name = inputs[i].getAttribute('name');
-        if (name) params[name] = inputs[i].getAttribute('value') || '';
+        var value = inputs[i].getAttribute('value') || '';
+        if (name) params[name] = value;
       }
     }
-    // Campos críticos
-    params.HISTORICODEREDES = params.HISTORICODEREDES || 'Y';
-    params.SECOPEORIGEM = params.SECOPEORIGEM || params.SECOPEB || args.secope;
-    params.SECOPECABECERA = params.SECOPECABECERA || params.SECOPEB || args.secope;
-    params.NUMREFCABECERA = params.NUMREFCABECERA || params.NUMREFB || arn;
-    params.PANCABECERA = params.PANCABECERA || params.PANB || args.pan;
-    params.PANTALLA = params.PANTALLA || 'De Histórico De Redes';
-    params.SECOPEB = params.SECOPEB || args.secope;
-    params.PANB = params.PANB || args.pan;
-    params.NUMREFB = params.NUMREFB || arn;
-    params.CONTCUR = params.CONTCUR || args.contcur;
-    params.TIPFRAN = params.TIPFRAN || tipoRede;
+
+    // Campos críticos (identificados no HAR / referência)
+    if (!params.HISTORICODEREDES) params.HISTORICODEREDES = 'Y';
+    if (!params.SECOPEORIGEM) params.SECOPEORIGEM = params.SECOPEB || args.secope;
+    if (!params.SECOPECABECERA) params.SECOPECABECERA = params.SECOPEB || args.secope;
+    if (!params.NUMREFCABECERA) params.NUMREFCABECERA = params.NUMREFB || arn;
+    if (!params.PANCABECERA) params.PANCABECERA = params.PANB || args.pan;
+    if (!params.VENGODEMENSAJEINCOMING) params.VENGODEMENSAJEINCOMING = '';
+    if (!params.PANTALLA) params.PANTALLA = 'De Histórico De Redes';
+    if (!params.SECOPEB) params.SECOPEB = args.secope;
+    if (!params.PANB) params.PANB = args.pan;
+    if (!params.NUMREFB) params.NUMREFB = arn;
+    if (!params.CONTCUR) params.CONTCUR = args.contcur;
+    if (!params.SECOPE) params.SECOPE = args.secope;
+    if (!params.NUMREF) params.NUMREF = args.numref || arn;
+    if (!params.PAN) params.PAN = args.pan;
+    if (!params.CODCOM) params.CODCOM = args.codcom;
+    if (!params.FECOPER) params.FECOPER = args.fecoper;
+    if (!params.TIPFRAN) params.TIPFRAN = tipoRede;
+
+    // Sobrescreve os campos de navegação
     params.sNombreMenuAnt = CONFIG.MENU;
     params.sNombreMenuAct = '0884';
     params.sNombreEvento = '0884';
-    params.sIdWindow = w;
+    params.sIdWindow = sIdWindow;
     params.sIdWindowPadre = 'FrameProducto';
     params.selFranquicias = 'true';
+
     return await network.post(CONFIG.SERVLET_DIRECTOR, params);
   }
 
   // ── Passo 5: Extrair dados da página de voucher ──
   function extrairDadosVoucher(html) {
-    var doc = new DOMParser().parseFromString(html, 'text/html');
-    var arn = '', valor = '';
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
+
+    var acquirerRefNumber = '';
+    var valorCompraRaw = '';
+
+    // Estratégia 1: seletor CSS por classe
     var tds = doc.querySelectorAll('td.FuenteTextoBORDER');
     for (var i = 0; i < tds.length; i++) {
       var label = (tds[i].textContent || '').trim();
       var valorTd = tds[i].nextElementSibling;
-      var v = valorTd ? (valorTd.textContent || '').trim() : '';
-      if (!arn && (label.indexOf('Acquirer Ref') !== -1 ||
-          (label.indexOf('Pos 27-49') !== -1 && label.indexOf('ARN') !== -1))) arn = v;
-      if (!valor && (label.indexOf('VALOR COMPRA') !== -1 ||
-          (label.indexOf('Pos 62-73') !== -1 && label.indexOf('Dest') !== -1))) valor = v;
+      var valor = valorTd ? (valorTd.textContent || '').trim() : '';
+
+      // ARN / Acquirer Ref
+      if (!acquirerRefNumber) {
+        if (label.indexOf('Acquirer Ref') !== -1 ||
+            (label.indexOf('Pos 27-49') !== -1 && label.indexOf('ARN') !== -1)) {
+          acquirerRefNumber = valor;
+        }
+      }
+
+      // Valor
+      if (!valorCompraRaw) {
+        if (label.indexOf('VALOR COMPRA') !== -1 ||
+            (label.indexOf('Pos 62-73') !== -1 && label.indexOf('Dest') !== -1) ||
+            label.indexOf('MC - DE4 - Transsaction Amount') !== -1 ||
+            (label.indexOf('DE4') !== -1 && label.indexOf('Transsaction Amount') !== -1)) {
+          valorCompraRaw = valor;
+        }
+      }
     }
-    return { acquirerRefNumber: arn, valorCompraRaw: valor, valorCompraNormalizado: normalizarValor(valor) };
+
+    // Estratégia 2: fallback via regex no HTML bruto
+    if (!acquirerRefNumber && !valorCompraRaw) {
+      // ELO: Acquirer Ref Number
+      var regexAcq = /Acquirer\s*Ref\s*Number[^<]*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i;
+      var matchAcq = html.match(regexAcq);
+      if (matchAcq) acquirerRefNumber = matchAcq[1].trim();
+
+      // VISA: Pos 27-49 - ARN
+      if (!acquirerRefNumber) {
+        var regexArnVisa = /Pos\s*27-49[^<]*ARN[^<]*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i;
+        var matchArnVisa = html.match(regexArnVisa);
+        if (matchArnVisa) acquirerRefNumber = matchArnVisa[1].trim();
+      }
+
+      // ELO: VALOR COMPRA-PARCELA
+      var regexVal = /VALOR\s*COMPRA[^<]*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i;
+      var matchVal = html.match(regexVal);
+      if (matchVal) valorCompraRaw = matchVal[1].trim();
+
+      // VISA: Pos 62-73 - Dest. Amount
+      if (!valorCompraRaw) {
+        var regexValVisa = /Pos\s*62-73[^<]*Dest[^<]*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i;
+        var matchValVisa = html.match(regexValVisa);
+        if (matchValVisa) valorCompraRaw = matchValVisa[1].trim();
+      }
+
+      // MC: DE4 - Transsaction Amount
+      if (!valorCompraRaw) {
+        var regexValMc = /DE4[^<]*Transsaction\s*Amount[^<]*<\/td>\s*<td[^>]*>([^<]+)<\/td>/i;
+        var matchValMc = html.match(regexValMc);
+        if (matchValMc) valorCompraRaw = matchValMc[1].trim();
+      }
+    }
+
+    return {
+      acquirerRefNumber: acquirerRefNumber,
+      valorCompraRaw: valorCompraRaw,
+      valorCompraNormalizado: normalizarValor(valorCompraRaw)
+    };
   }
 
-  // ── Voltar ao menu de busca ──
+  // ── Voltar ao menu de busca (reset estado SAT entre ARNs) ──
   async function voltarParaBusca(network) {
-    var w = network.getSessionId() + 'Interface';
-    await network.post(CONFIG.SERVLET_DIRECTOR, {
-      TKCSRF: '', CODENT: CONFIG.CODENT, bOcultarBtn: 'S',
+    var sIdWindow = network.getSessionId() + 'Interface';
+    var params = {
+      TKCSRF: '', IPROTOCOLO: '', INDEJECUCION: '',
+      CODENT: CONFIG.CODENT, bOcultarBtn: 'S',
+      CODCOM: '', SECOPE: '', NUMREF: '', PAN: '', FECOPER: '',
+      TIPFRANFILTRO: '', SECOPEBFILTRO: '', PANBFILTRO: '',
+      NUMREFBFILTRO: '', TIPOFACFILTRO: '', TIPOINCFILTRO: '',
+      FECOPERIFILTRO: '', FECOPERFFILTRO: '',
+      FECALTAIFILTRO: '', FECALTAFFILTRO: '',
+      FRANQUICIA: '', TIPFRAN: '',
+      SECOPEB: '', filtros: '2', PANB: '', NUMREFB: '',
+      TIPOFAC: '', TIPOINC: '', FECOPERI: '', FECOPERF: '',
+      FECALTAI: '', FECALTAF: '',
       sNombreMenuAnt: '0884', sNombreMenuAct: CONFIG.MENU,
       sNombreEvento: CONFIG.MENU,
-      sIdWindow: w, sIdWindowPadre: 'FrameProducto', selFranquicias: 'true',
-    });
+      sIdWindow: sIdWindow, sIdWindowPadre: 'FrameProducto',
+      selFranquicias: 'true',
+    };
+    await network.post(CONFIG.SERVLET_DIRECTOR, params);
   }
 
   PAINEL.registrarModulo({
@@ -2891,36 +3391,44 @@ window.__PAINEL_VERSION__ = "1.0.11";
       parseRow: function (row) {
         var arn = String(row[0] || '').trim();
         if (!arn) return null;
-        var tipfran = (row[1] != null) ? String(row[1]).trim() : '2';
+        var tipfran = (row[1] != null && String(row[1]).trim() !== '') ? String(row[1]).trim() : '2';
         return { arn: arn, tipfran: tipfran };
       },
       parseManual: function (line) {
         var parts = line.split(/[,;\t]/);
-        var arn = parts[0].trim();
-        return arn ? { arn: arn, tipfran: (parts[1] || '2').trim() } : null;
+        var arn = (parts[0] || '').trim();
+        var tipfran = (parts[1] || '').trim() || '2';
+        return arn ? { arn: arn, tipfran: tipfran } : null;
       },
       toStr: function (item) { return item.arn; },
     },
     keepaliveConfig: { url: CONFIG.SERVLET_AJAX, body: 'REQUEST_TYPE=AJAX&Peticion=VALIDATRANSMTO' },
     processarUm: async function (item, core) {
+      var arn = item.arn;
+      var tipoRede = item.tipfran;
       var reg = {
-        ARN_ORIGINAL: item.arn, BANDEIRA: item.tipfran,
+        ARN_ORIGINAL: arn, BANDEIRA: tipoRede,
         ARN_VOUCHER: '', VALOR_VOUCHER_RAW: '',
         VALOR_VOUCHER_NORMALIZADO: '', STATUS: 'OK',
       };
       try {
-        var htmlBusca = await buscarPorARN(item.arn, item.tipfran, core.network);
+        // Passo 1: Buscar ARN
+        var htmlBusca = await buscarPorARN(arn, tipoRede, core.network);
         await core.utils.esperar(200);
 
+        // Passo 2: Encontrar linha 001/SIM
         var argsLinha = encontrarLinhaVoucher(htmlBusca);
         if (!argsLinha) { reg.STATUS = 'SEM REGISTRO 001/SIM'; return reg; }
 
-        var htmlDetalhe = await navegarDetalhe(item.arn, item.tipfran, argsLinha, core.network);
+        // Passo 3: Navegar para detalhe
+        var htmlDetalhe = await navegarDetalhe(arn, tipoRede, argsLinha, core.network);
         await core.utils.esperar(200);
 
-        var htmlVoucher = await navegarVoucher(htmlDetalhe, argsLinha, item.arn, item.tipfran, core.network);
+        // Passo 4: Navegar para Mensagem Incoming Voucher
+        var htmlVoucher = await navegarVoucher(htmlDetalhe, argsLinha, arn, tipoRede, core.network);
         await core.utils.esperar(200);
 
+        // Passo 5: Extrair dados do voucher
         var dados = extrairDadosVoucher(htmlVoucher);
         if (!dados.acquirerRefNumber && !dados.valorCompraRaw) { reg.STATUS = 'VOUCHER SEM DADOS'; return reg; }
 
@@ -2928,6 +3436,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
         reg.VALOR_VOUCHER_RAW = dados.valorCompraRaw;
         reg.VALOR_VOUCHER_NORMALIZADO = dados.valorCompraNormalizado;
 
+        // Voltar ao estado de busca para o próximo ARN
         await voltarParaBusca(core.network);
         await core.utils.esperar(200);
       } catch (e) {
@@ -2939,18 +3448,16 @@ window.__PAINEL_VERSION__ = "1.0.11";
     },
     logItem: function (prefixo, item, regs, addLog) {
       var r = regs[0];
-      if (r.STATUS === 'OK') addLog(prefixo + ' OK | ' + item.arn + ' | V=' + r.VALOR_VOUCHER_NORMALIZADO);
-      else addLog(prefixo + ' ' + r.STATUS + ' | ' + item.arn);
+      if (r && r.STATUS === 'OK') addLog(prefixo + ' OK | ' + item.arn + ' | V=' + r.VALOR_VOUCHER_NORMALIZADO);
+      else if (r) addLog(prefixo + ' ' + r.STATUS + ' | ' + item.arn);
+      else addLog(prefixo + ' ERRO | ' + item.arn);
     },
   });
 
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_nucaso.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_nucaso.js ──
 /**
  * MÓDULO: Consulta NUCASO (SAT Menu 0209)
  * Verifica se NUCASO está preenchido por número de expediente.
@@ -3050,10 +3557,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_reportes_fraude.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_reportes_fraude.js ──
 /**
  * MÓDULO: Consulta Reportes de Fraude (SAT Menu 0181)
  * Consulta em lote de reportes de fraude por NUMEXP + TIPFRAN.
@@ -3300,10 +3804,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_sat_vrol.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_sat_vrol.js ──
 /**
  * MÓDULO: SAT + VROL Consulta (SAT 0209 + ws-vcr JSON + VROL API)
  * Pipeline: SAT(passo1→passo2→passo3→NUMREF+PAN) → ws-vcr(getTransacao) → VROL(chargebacks+caseCheck).
@@ -3687,10 +4188,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_siach_ocorrencias.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_siach_ocorrencias.js ──
 /**
  * MÓDULO: Extrator de Ocorrências SIACH (REST API)
  * Consulta protocolo → lista ocorrências EM_ANDAMENTO → detalhe/transações.
@@ -3887,10 +4385,7 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
-
-// ════════════════════════════════════════════════════════════
-// Arquivo: modules/mod_vinculacao_voucher.js
-// ──────────────────────────────────────────────────────────
+// ── modules/mod_vinculacao_voucher.js ──
 /**
  * MÓDULO: Consulta Vinculação Voucher (SAT Menu 0209)
  * Retorna VINCVOUCHER (SIM/NAO) por número de expediente.
@@ -3989,14 +4484,17 @@ window.__PAINEL_VERSION__ = "1.0.11";
 })(window.__PAINEL_CORE__ = window.__PAINEL_CORE__ || {});
 
 
+// BUILD_INJECT_END
 
-// ════════════════════════════════════════════════════════════
-// Inicialização
-if (window.__PAINEL_CORE__ && window.__PAINEL_CORE__.ui) {
-  window.__PAINEL_CORE__.ui.injetarBotaoFlutuante();
-  console.log("[Painel] Bundle carregado. Botão flutuante injetado.");
-} else {
-  console.error("[Painel] Falha na inicialização — core não encontrado.");
-}
+  // ── Inicializar ──
+  if (window.__PAINEL_CORE__ &&
+      window.__PAINEL_CORE__.vrolBridge &&
+      window.__PAINEL_CORE__.vrolBridge.isVrolHost()) {
+    window.__PAINEL_CORE__.vrolBridge.instalarServidor();
+    console.log('[Painel] Ponte VROL ativa.');
+  } else if (window.__PAINEL_CORE__ && window.__PAINEL_CORE__.ui) {
+    window.__PAINEL_CORE__.ui.injetarBotaoFlutuante();
+    console.log('[Painel] Botão flutuante injetado com sucesso.');
+  }
 
 })();

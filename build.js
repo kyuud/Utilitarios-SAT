@@ -6,7 +6,7 @@
  *  arquivo bundle único para uso via console ou bookmarklet.
  *
  *  Uso:  node build.js
- *  Saída: painelUnificado.bundle.js
+ *  Saída: painel_unificado.bundle.js
  * ═══════════════════════════════════════════════════════════
  */
 
@@ -79,7 +79,7 @@ bundle += '}\n';
 bundle += '\n})();\n';
 
 // ── Escrever ──
-const outPath = path.join(ROOT, 'painelUnificado.bundle.js');
+const outPath = path.join(ROOT, 'painel_unificado.bundle.js');
 fs.writeFileSync(outPath, bundle, 'utf-8');
 console.log(`\n✅ Bundle gerado: ${outPath}`);
 console.log(`   Tamanho: ${(bundle.length / 1024).toFixed(1)} KB`);
@@ -111,7 +111,7 @@ if (fs.existsSync(userScriptPath)) {
     const after = userScript.substring(endIdx + endMarker.length);
     const finalUserScript = before + startMarker + '\n' + inlineContent + '\n' + endMarker + after;
 
-    const outUserPath = path.join(ROOT, 'painel.prod.user.js');
+    const outUserPath = path.join(ROOT, 'painel_prod.user.js');
     fs.writeFileSync(outUserPath, finalUserScript, 'utf-8');
     console.log(`✅ UserScript produção: ${outUserPath}`);
     console.log(`   Tamanho: ${(finalUserScript.length / 1024).toFixed(1)} KB`);

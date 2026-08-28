@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Painel Automações CEF
 // @namespace    stefanini/automacoes
-// @version      1.0.11
-// @updateURL    https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
-// @downloadURL  https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel.prod.user.js
+// @version      1.0.12
+// @updateURL    https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel_prod.user.js
+// @downloadURL  https://raw.githubusercontent.com/kyuud/Utilitarios-SAT/main/painel_prod.user.js
 // @description  Painel de controle unificado para automações SAT/SIACH/VROL
 // @author       Wallyson Batista
 // @match        https://cartoes.extracaixa/*
@@ -27,7 +27,7 @@
  *
  *  Este arquivo é o ponto de entrada para o Tampermonkey.
  *  Para usar MANUALMENTE (sem Tampermonkey), utilize o arquivo
- *  gerado pelo build.js: painelUnificado.bundle.js
+ *  gerado pelo build.js: painel_unificado.bundle.js
  *
  *  Para DESENVOLVIMENTO, o build.js concatena core/ + modules/
  *  e embute tudo neste wrapper.
@@ -40,7 +40,7 @@
   // ── Guard: evita execução duplicada ──
   if (window.__PAINEL_INIT__) return;
   window.__PAINEL_INIT__ = true;
-  window.__PAINEL_VERSION__ = '1.0.11';
+  window.__PAINEL_VERSION__ = '1.0.12';
   // ===========================================================
 
   // ── Modo Desenvolvimento: carrega scripts de um servidor local ──

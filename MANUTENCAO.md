@@ -22,14 +22,14 @@ PainelUnificado/
 │   ├── mod_sat_vrol.js
 │   └── mod_siach_ocorrencias.js
 ├── painel.user.js              ← Entry point Tampermonkey (dev/prod)
-├── painel.prod.user.js         ← GERADO — NÃO editar manualmente
-├── painelUnificado.bundle.js   ← GERADO — NÃO editar manualmente
+├── painel_prod.user.js         ← GERADO — NÃO editar manualmente
+├── painel_unificado.bundle.js   ← GERADO — NÃO editar manualmente
 ├── build.py                    ← Gerador de bundle (Python)
 ├── serve.py                    ← Servidor dev local
 └── CHANGELOG.md
 ```
 
-> **Regra de ouro:** Nunca edite `painel.prod.user.js` ou `painelUnificado.bundle.js`. Eles são sobrescritos pelo `build.py`.
+> **Regra de ouro:** Nunca edite `painel_prod.user.js` ou `painel_unificado.bundle.js`. Eles são sobrescritos pelo `build.py`.
 
 ---
 

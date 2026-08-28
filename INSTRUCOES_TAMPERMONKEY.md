@@ -16,7 +16,7 @@
 
 1. Abra o **Tampermonkey** → clique em **Criar novo script**
 2. Apague todo o conteúdo padrão
-3. Abra o arquivo `painel.prod.user.js` da pasta `PainelUnificado/`
+3. Abra o arquivo `painel_prod.user.js` da pasta `PainelUnificado/`
 4. Copie **todo** o conteúdo e cole no editor do Tampermonkey
 5. Salve com **Ctrl+S**
 6. Recarregue tambem qualquer aba aberta do VROL para ativar a ponte anti-CORS
@@ -24,7 +24,7 @@
 
 ### Opção B: Bundle via Console (sem Tampermonkey)
 
-1. Abra o arquivo `painelUnificado.bundle.js`
+1. Abra o arquivo `painel_unificado.bundle.js`
 2. Copie todo o conteúdo
 3. No navegador, pressione **F12** → aba **Console**
 4. Cole o código e pressione **Enter**
