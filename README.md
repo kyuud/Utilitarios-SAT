@@ -1,4 +1,4 @@
-# 🎯 Painel de Automações CEF — Utilitários SAT
+# Painel de Automações CEF — Utilitários SAT
 
 ![Tampermonkey](https://img.shields.io/badge/Tampermonkey-Userscript-green)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-blue)
@@ -7,25 +7,25 @@
 
 O **Painel de Automações CEF (Utilitários SAT)** é um *userscript* modular desenvolvido para **agilizar, padronizar e automatizar consultas e extrações de dados em lote** nos sistemas de cartões e atendimento da CAIXA, incluindo o **SAT** (Oracle Forms / Servlets JServ), **SIACH** (API REST) e **VROL** (Visa Online).
 
-O projeto consolida **10 módulos especializados** em uma interface gráfica flutuante moderna (injetável via **Tampermonkey** ou diretamente pelo **Console do Navegador**), eliminando processos manuais repetitivos, reduzindo tempo de atendimento e gerando relatórios estruturados em **CSV** e **XLSX**.
+O projeto consolida **10 módulos especializados** em uma interface gráfica flutuante (injetável via **Tampermonkey** ou diretamente pelo **Console do Navegador**), eliminando processos manuais repetitivos, reduzindo tempo de atendimento e gerando relatórios estruturados em **CSV** e **XLSX**.
 
 ---
 
-## ⚡ Principais Recursos
+## Principais Recursos
 
-- **Interface Flutuante (GUI)**: Acesso rápido através do botão flutuante **⚡** no canto inferior direito de qualquer tela dos sistemas suportados.
+- **Interface Flutuante (GUI)**: Acesso rápido através de botão flutuante no canto inferior direito de qualquer tela dos sistemas suportados.
 - **Entrada Flexível de Dados**:
   - **Planilhas Excel (`.xlsx` / `.xls`)**: Processamento de lotes volumosos com detecção automática de colunas.
   - **Modo Manual Inline**: Inserção rápida de itens diretamente na interface do painel (sem modais bloqueantes nativos).
 - **Dashboard de Execução em Tempo Real**:
   - Barra de progresso com porcentagem dinâmica.
-  - Contadores de sucesso (✅) e falhas/não localizados (❌).
+  - Contadores de sucesso e falhas/não localizados.
   - Cronômetro decorrido e cálculo de tempo estimado restante (**ETA**).
   - Console de logs detalhado por item processado.
 - **Resiliência e Retomada Automática**:
   - Estado salvo continuamente no `localStorage`.
   - Tratamento inteligente de sessão expirada: faça novo login e o painel perguntará se deseja **retomar de onde parou**.
-  - Botão **■ Parar** para interrupção segura do lote sem perder o que já foi extraído.
+  - Botão **Parar** para interrupção segura do lote sem perder o que já foi extraído.
 - **Exportação Otimizada**:
   - **Download de CSV parcial**: Baixe os registros coletados a qualquer momento durante a execução.
   - **CSV Formatado**: Padrão brasileiro com delimitador `;` e codificação UTF-8 com BOM (compatível com abertura direta no Microsoft Excel).
@@ -35,7 +35,7 @@ O projeto consolida **10 módulos especializados** em uma interface gráfica flu
 
 ---
 
-## 🧩 Módulos Disponíveis
+## Módulos Disponíveis
 
 O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 
@@ -52,61 +52,61 @@ O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 └──────────────────────┴──────────────────────┴───────────────────────────────┘
 ```
 
-### 1. 🌐 Consulta Histórico de Redes
+### 1. Consulta Histórico de Redes
 - **Arquivo**: [`modules/mod_consulta_redes.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_consulta_redes.js)
 - **Sistema**: SAT (Menu `0311`)
 - **Entrada**: Coluna A = `ARN`, Coluna B = `TIPFRAN` (Bandeira: `1`=Visa, `2`=Master, `7`=Elo).
 - **Saída**: Arquivo CSV contendo o histórico detalhado da transação de rede correspondente ao ARN.
 
-### 2. 🎟️ Vinculação Voucher - Extrator (Incoming Voucher)
+### 2. Vinculação Voucher - Extrator (Incoming Voucher)
 - **Arquivo**: [`modules/mod_incoming_voucher.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_incoming_voucher.js)
-- **Sistema**: SAT (Menu `0311` ➔ Menu `0884`)
+- **Sistema**: SAT (Menu `0311` -> Menu `0884`)
 - **Entrada**: Coluna A = `ARN`, Coluna B = `TIPFRAN` (padrão `2`).
 - **Saída**: Arquivo CSV com `ARN_ORIGINAL`, `BANDEIRA`, `ARN_VOUCHER`, `VALOR_VOUCHER_RAW` e `VALOR_VOUCHER_NORMALIZADO`.
 
-### 3. 🏷️ Extrator NUCASO (Número de Caso de Bandeira)
+### 3. Extrator NUCASO (Número de Caso de Bandeira)
 - **Arquivo**: [`modules/mod_nucaso.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_nucaso.js)
 - **Sistema**: SAT (Menu `0209`)
 - **Entrada**: Coluna A = `NUMEXP` (Número do Expediente/Processo).
 - **Saída**: Arquivo CSV com `NUMEXP`, `NUCASO` e indicador `TEM_CASO` (`SIM` / `NAO`).
 
-### 4. 🔗 Pesquisa de Vinculação Voucher
+### 4. Pesquisa de Vinculação Voucher
 - **Arquivo**: [`modules/mod_vinculacao_voucher.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_vinculacao_voucher.js)
 - **Sistema**: SAT (Menu `0209`)
 - **Entrada**: Coluna A = `NUMEXP`.
 - **Saída**: Arquivo CSV com `NUMEXP`, `VINCVOUCHER` (`SIM` / `NAO`) e status da pesquisa.
 
-### 5. 📊 Extrator de Informações de Ocorrências (Consulta Completa)
+### 5. Extrator de Informações de Ocorrências (Consulta Completa)
 - **Arquivo**: [`modules/mod_consulta_completa.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_consulta_completa.js)
 - **Sistema**: SAT (Menu `0209`)
 - **Entrada**: Coluna A = `NUMEXP`.
 - **Saída**: Relatório completo em CSV com **62 colunas rotuladas em Português**, incluindo dados cadastrais, financeiros, bandeira, solução, datas, contrato, agência e bloqueios de cartão/conta.
 
-### 6. 🔎 Consulta Solução de Ocorrência (Detalhe Direto)
+### 6. Consulta Solução de Ocorrência (Detalhe Direto)
 - **Arquivo**: [`modules/mod_detalhe_direto.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_detalhe_direto.js)
 - **Sistema**: SAT (Ajax Direto — `pesquisaDeOcorrencias` + `getMessageIncoming`)
 - **Entrada**: Coluna A = `NUMINC` (Número da Ocorrência).
 - **Saída**: Arquivo CSV com `NUMINC`, `CODSOLINC`, `INDSITEXP`, `TIPFRAN`, `BANDEIRA`, `SECOPE`, `MODO_ENTRADA`, `MODO_SEGURANCA` e `SEGURO`.
 
-### 7. 🛡️ Extrator Modo de Entrada / Segurança (Compra Segura)
+### 7. Extrator Modo de Entrada / Segurança (Compra Segura)
 - **Arquivo**: [`modules/mod_compra_segura.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_compra_segura.js)
 - **Sistema**: SAT (Ajax Direto)
 - **Entrada**: Coluna A = `NUMINC`, Coluna B = `PROTOCOLO` (opcional).
 - **Saída**: Arquivo CSV auditando se a transação do protocolo foi realizada em ambiente seguro (`Compra Segura`, `Compra Não Segura` ou `Sem SECOPE`).
 
-### 8. 🚨 Consulta Reportes de Fraude
+### 8. Consulta Reportes de Fraude
 - **Arquivo**: [`modules/mod_reportes_fraude.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_reportes_fraude.js)
 - **Sistema**: SAT (Menu `0181`)
 - **Entrada**: Coluna A = `NUMEXP`, Coluna B = `TIPFRAN` (padrão `1` - Visa).
 - **Saída**: Arquivo CSV com todos os reportes de fraude cadastrados para os expedientes (suporte a lotes configurados de 120 itens).
 
-### 9. 🌐 SAT + VROL Consulta (Cross-System)
+### 9. SAT + VROL Consulta (Cross-System)
 - **Arquivo**: [`modules/mod_sat_vrol.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_sat_vrol.js)
 - **Sistema**: SAT + Visa Online (VROL)
 - **Entrada**: Coluna A = `NUMEXP`.
 - **Saída**: Arquivo CSV consolidando dados do SAT cruzados com consultas JSON VCR e status de disputas e chargebacks obtidos no VROL via ponte anti-CORS.
 
-### 10. 📂 Extrator SIACH Ocorrências Completo
+### 10. Extrator SIACH Ocorrências Completo
 - **Arquivo**: [`modules/mod_siach_ocorrencias.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/modules/mod_siach_ocorrencias.js)
 - **Sistema**: SIACH (API REST)
 - **Entrada**: Coluna A = `Protocolo` (com dígito).
@@ -114,12 +114,12 @@ O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 
 ---
 
-## 📋 Tabela Resumo dos Módulos
+## Tabela Resumo dos Módulos
 
 | # | Módulo | Sistema | Entrada Principal | Saída | Formato |
 |---|--------|---------|-------------------|-------|---------|
 | 1 | **Consulta Histórico de Redes** | SAT (0311) | `ARN` + `TIPFRAN` | Histórico da rede | CSV |
-| 2 | **Incoming Voucher** | SAT (0311➔0884) | `ARN` + `TIPFRAN` | ARN e Valor do Voucher | CSV |
+| 2 | **Incoming Voucher** | SAT (0311->0884) | `ARN` + `TIPFRAN` | ARN e Valor do Voucher | CSV |
 | 3 | **Extrator NUCASO** | SAT (0209) | `NUMEXP` | NUCASO + `TEM_CASO` | CSV |
 | 4 | **Vinculação Voucher** | SAT (0209) | `NUMEXP` | Indicador `VINCVOUCHER` | CSV |
 | 5 | **Consulta Completa** | SAT (0209) | `NUMEXP` | 62 campos em Português | CSV |
@@ -131,7 +131,7 @@ O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 
 ---
 
-## 💳 Tabela de Bandeiras (`TIPFRAN`)
+## Tabela de Bandeiras (`TIPFRAN`)
 
 | Código (`TIPFRAN`) | Bandeira |
 |:------------------:|----------|
@@ -142,7 +142,7 @@ O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 
 ---
 
-## 🚀 Instalação e Uso
+## Instalação e Uso
 
 ### Pré-requisitos
 1. **Navegador**: Google Chrome ou Microsoft Edge.
@@ -161,12 +161,12 @@ O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 2. Apague todo o conteúdo modelo exibido no editor.
 3. Abra o arquivo [`painel_prod.user.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/painel_prod.user.js), copie **todo** o conteúdo e cole no Tampermonkey.
 4. Salve com **Ctrl + S**.
-5. Acesse o SAT ou SIACH e recarregue a página (`F5`). O botão flutuante **⚡** estará disponível no canto inferior direito.
+5. Acesse o SAT ou SIACH e recarregue a página (`F5`). O botão flutuante estará disponível no canto inferior direito.
 
 #### Opção 2: Execução Temporária via Console DevTools (Sem Tampermonkey)
 1. Abra o arquivo [`painel_unificado.bundle.js`](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/painel_unificado.bundle.js) e copie todo o seu conteúdo.
-2. Na página do SAT, pressione **F12** (ou clique com botão direito ➔ *Inspecionar*) e vá para a aba **Console**.
-3. Cole o script e pressione **Enter**. O botão **⚡** aparecerá na tela.
+2. Na página do SAT, pressione **F12** (ou clique com botão direito -> *Inspecionar*) e vá para a aba **Console**.
+3. Cole o script e pressione **Enter**. O botão flutuante aparecerá na tela.
 *(Nota: Essa opção requer repetir o procedimento a cada atualização de página).*
 
 #### Opção 3: Modo de Desenvolvimento Local
@@ -179,19 +179,19 @@ O painel conta com 10 módulos distribuídos conforme o sistema de origem:
 
 ---
 
-## 📖 Como Operar o Painel
+## Como Operar o Painel
 
-1. **Acessar o Painel**: Clique no botão flutuante **⚡** no canto inferior direito.
+1. **Acessar o Painel**: Clique no botão flutuante no canto inferior direito.
 2. **Escolher o Módulo**: No menu em formato de grid, selecione o card correspondente à consulta desejada.
 3. **Fornecer os Dados de Entrada**:
-   - **Via XLSX**: Clique em **▶ Carregar XLSX** e selecione o arquivo com os identificadores na coluna A (e coluna B quando aplicável).
-   - **Via Manual**: Clique em **▶ Manual**, cole a lista de itens no campo de texto e clique em **Processar** (ou `Ctrl + Enter`).
+   - **Via XLSX**: Clique em **Carregar XLSX** e selecione o arquivo com os identificadores na coluna A (e coluna B quando aplicável).
+   - **Via Manual**: Clique em **Manual**, cole a lista de itens no campo de texto e clique em **Processar** (ou `Ctrl + Enter`).
 4. **Acompanhar a Execução**: Acompanhe o progresso na barra percentual, nos contadores e no log em tempo real.
 5. **Finalização**: Ao concluir, o download do relatório (`.csv` ou `.xlsx`) iniciará automaticamente.
 
 ---
 
-## 🛠️ Arquitetura do Projeto
+## Arquitetura do Projeto
 
 O projeto é estruturado em duas camadas principais: **Core** (infraestrutura base compartilhada) e **Modules** (lógicas de automação plugáveis).
 
@@ -201,7 +201,7 @@ Utilitarios-SAT/
 │   ├── dataIO.js                   # Parser XLSX (SheetJS) e exportadores CSV/XLSX
 │   ├── network.js                  # Requisições POST/GET, Ajax, REST e keepalive
 │   ├── persistence.js              # Persistência em localStorage e retomada
-│   ├── ui.js                       # Motor da GUI (botão ⚡, menu grid, dashboard, logs)
+│   ├── ui.js                       # Motor da GUI (botão flutuante, menu grid, dashboard, logs)
 │   ├── utils.js                    # Utilitários (delays, parse de datas, XPaths, regex)
 │   └── vrolBridge.js               # Ponte cross-tab anti-CORS para Visa Online
 │
@@ -231,7 +231,7 @@ Utilitarios-SAT/
 
 ---
 
-## 🔨 Criação e Registro de Novos Módulos
+## Criação e Registro de Novos Módulos
 
 Para criar um novo módulo de automação:
 
@@ -245,7 +245,6 @@ Para criar um novo módulo de automação:
      PAINEL.registrarModulo({
        id: 'novo_modulo',
        nome: 'Nome do Módulo no Menu',
-       icone: '⚙️',
        cor: 'linear-gradient(90deg, #3498db, #2ecc71)',
        descricao: 'Descrição breve da funcionalidade.',
        sistema: 'SAT', // 'SAT', 'SIACH' ou 'SAT+VROL'
@@ -270,19 +269,17 @@ Para criar um novo módulo de automação:
 
 2. Recompile o projeto para atualizar o bundle e o script de produção:
    ```bash
-   node build.js
-   # ou
    python build.py
    ```
 
 ---
 
-## 📚 Documentações Complementares
+## Documentações Complementares
 
-- 📄 [Histórico de Mudanças (CHANGELOG.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/CHANGELOG.md)
-- 📖 [Instruções Detalhadas do Tampermonkey (INSTRUCOES_TAMPERMONKEY.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/INSTRUCOES_TAMPERMONKEY.md)
-- 🔧 [Guia de Manutenção e Arquitetura Técnica (MANUTENCAO.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/MANUTENCAO.md)
-- 📝 [Catálogo de Scripts Originais e Referências (README_SCRIPTS.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/README_SCRIPTS.md)
+- [Histórico de Mudanças (CHANGELOG.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/CHANGELOG.md)
+- [Instruções Detalhadas do Tampermonkey (INSTRUCOES_TAMPERMONKEY.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/INSTRUCOES_TAMPERMONKEY.md)
+- [Guia de Manutenção e Arquitetura Técnica (MANUTENCAO.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/MANUTENCAO.md)
+- [Catálogo de Scripts Originais e Referências (README_SCRIPTS.md)](file:///c:/Users/794080663/OneDrive%20-%20Stefanini/Arquivos%20-%20Automa%C3%A7%C3%B5es/Scripts/Utilit%C3%A1rios%20SAT/README_SCRIPTS.md)
 
 ---
 
